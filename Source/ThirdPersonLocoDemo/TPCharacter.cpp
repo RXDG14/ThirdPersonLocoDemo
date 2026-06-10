@@ -5,7 +5,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "TPCMovementMode.h"
+#include "TPCPlayerEnums.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 ATPCharacter::ATPCharacter()
@@ -25,12 +25,16 @@ void ATPCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	SetTPCMovementMode(ETPCMovementMode::Walk);
+	SetTPCMovementMode(ETPCPlayerEnums::Walk);
+	SetTPCMotionMatchingType(ETPCMotionMatchingType::With_OrientRotationToMovement);
+	SetTPCCameraType(ETPCCameraType::Far);
 }
 
 void ATPCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	UpdateCameraPosition(DeltaTime);
 }
 
 void ATPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -44,6 +48,8 @@ void ATPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		EIC->BindAction(IA_Jump, ETriggerEvent::Started, this, &ATPCharacter::Jump);
 		EIC->BindAction(IA_Crouch, ETriggerEvent::Started, this, &ATPCharacter::ToggleCrouch);
 		EIC->BindAction(IA_Walk, ETriggerEvent::Started, this, &ATPCharacter::ToggleWalkJog);
+		EIC->BindAction(IA_MMTypeSwitch, ETriggerEvent::Started, this, &ATPCharacter::ToggleMotionMatchingType);
+		EIC->BindAction(IA_CameraTypeSwitch, ETriggerEvent::Started, this, &ATPCharacter::ToggleCameraType);
 		EIC->BindAction(IA_Sprint, ETriggerEvent::Started, this, &ATPCharacter::StartSprinting);
 		EIC->BindAction(IA_Sprint, ETriggerEvent::Completed, this, &ATPCharacter::StopSprinting);
 	}
@@ -73,52 +79,80 @@ void ATPCharacter::Look(const FInputActionValue& Value)
 
 void ATPCharacter::StartSprinting()
 {
-	SetTPCMovementMode(ETPCMovementMode::Sprint);
+	SetTPCMovementMode(ETPCPlayerEnums::Sprint);
 }
 
 void ATPCharacter::StopSprinting()
 {
-	SetTPCMovementMode(ETPCMovementMode::Jog);
+	SetTPCMovementMode(ETPCPlayerEnums::Jog);
 }
 
 void ATPCharacter::ToggleCrouch()
 {
-	SetTPCMovementMode(ETPCMovementMode::Crouch);
+	SetTPCMovementMode(ETPCPlayerEnums::Crouch);
 }
 
 void ATPCharacter::ToggleWalkJog()
 {
-	SetTPCMovementMode(CurrentMovementMode == ETPCMovementMode::Walk ? ETPCMovementMode::Jog : ETPCMovementMode::Walk);
+	SetTPCMovementMode(CurrentMovementMode == ETPCPlayerEnums::Walk ? ETPCPlayerEnums::Jog : ETPCPlayerEnums::Walk);
 }
 
-void ATPCharacter::SetTPCMovementMode(ETPCMovementMode NewMovementMode)
+void ATPCharacter::ToggleMotionMatchingType()
 {
-	if (NewMovementMode == ETPCMovementMode::Walk)
+	SetTPCMotionMatchingType(CurrentMotionMatchingType == ETPCMotionMatchingType::With_OrientRotationToMovement ? ETPCMotionMatchingType::With_ControllerDesiredRotation : ETPCMotionMatchingType::With_OrientRotationToMovement);
+}
+
+void ATPCharacter::ToggleCameraType()
+{
+	switch (CurrentCameraType)
+	{
+	case ETPCCameraType::Close:
+		SetTPCCameraType(ETPCCameraType::Far);
+		break;
+
+	case ETPCCameraType::Far:
+		SetTPCCameraType(ETPCCameraType::VeryFar);
+		break;
+
+	case ETPCCameraType::VeryFar:
+		SetTPCCameraType(ETPCCameraType::Far_Middle);
+		break;
+
+	case ETPCCameraType::Far_Middle:
+	default:
+		SetTPCCameraType(ETPCCameraType::Close);
+		break;
+	}
+}
+
+void ATPCharacter::SetTPCMovementMode(ETPCPlayerEnums NewMovementMode)
+{
+	if (NewMovementMode == ETPCPlayerEnums::Walk)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 		CurrentMovementMode = NewMovementMode;
 	}
 
-	if (NewMovementMode == ETPCMovementMode::Jog)
+	if (NewMovementMode == ETPCPlayerEnums::Jog)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = JogSpeed;
 		CurrentMovementMode = NewMovementMode;
 		bIsTPCCrouched = false;
 	}
 
-	if (NewMovementMode == ETPCMovementMode::Sprint)
+	if (NewMovementMode == ETPCPlayerEnums::Sprint)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 		CurrentMovementMode = NewMovementMode;
 		bIsTPCCrouched = false;
 	}
 
-	if (NewMovementMode == ETPCMovementMode::Crouch)
+	if (NewMovementMode == ETPCPlayerEnums::Crouch)
 	{
 		if (bIsTPCCrouched)
 		{
 			bIsTPCCrouched = false;
-			SetTPCMovementMode(ETPCMovementMode::Walk);
+			SetTPCMovementMode(ETPCPlayerEnums::Walk);
 		}
 		else
 		{
@@ -127,4 +161,67 @@ void ATPCharacter::SetTPCMovementMode(ETPCMovementMode NewMovementMode)
 			CurrentMovementMode = NewMovementMode;
 		}
 	}
+}
+
+void ATPCharacter::SetTPCMotionMatchingType(ETPCMotionMatchingType NewMotionMatchingType)
+{
+	if (NewMotionMatchingType == ETPCMotionMatchingType::With_ControllerDesiredRotation)
+	{
+		GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		CurrentMotionMatchingType = NewMotionMatchingType;
+	}
+
+	if (NewMotionMatchingType == ETPCMotionMatchingType::With_OrientRotationToMovement)
+	{
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		CurrentMotionMatchingType = NewMotionMatchingType;
+	}
+}
+
+void ATPCharacter::SetTPCCameraType(ETPCCameraType NewCameraType)
+{
+	CurrentCameraType = NewCameraType;
+
+	switch (NewCameraType)
+	{
+	case ETPCCameraType::Close:
+		DesiredCameraArmLength = CameraArmLengthClose;
+		DesiredSocketOffset = SocketOffsetClose;
+		break;
+
+	case ETPCCameraType::Far:
+		DesiredCameraArmLength = CameraArmLengthFar;
+		DesiredSocketOffset = SocketOffsetFar;
+		break;
+
+	case ETPCCameraType::VeryFar:
+		DesiredCameraArmLength = CameraArmLengthVeryFar;
+		DesiredSocketOffset = SocketOffsetVeryFar;
+		break;
+		
+	case ETPCCameraType::Far_Middle:
+		DesiredCameraArmLength = CameraArmLengthFarMiddle;
+		DesiredSocketOffset = SocketOffsetFarMiddle;
+		break;
+	
+	default:
+		break;
+	}
+}
+
+void ATPCharacter::UpdateCameraPosition(float DeltaTime)
+{
+	if (bIsTPCCrouched)
+	{
+		DesiredSocketOffset.Z = 0;
+	}
+	else
+	{
+		DesiredSocketOffset.Z = 50;
+	}
+	
+	SpringArm->TargetArmLength = FMath::FInterpTo(SpringArm->TargetArmLength, DesiredCameraArmLength, DeltaTime, CameraInterpSpeed);
+	SpringArm->SocketOffset = FMath::VInterpTo(SpringArm->SocketOffset, DesiredSocketOffset, DeltaTime, CameraInterpSpeed);
 }
