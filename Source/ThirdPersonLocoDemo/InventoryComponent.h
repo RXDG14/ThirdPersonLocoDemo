@@ -1,0 +1,18 @@
+#pragma once
+#include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
+#include "InventoryComponent.generated.h"
+
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class THIRDPERSONLOCODEMO_API UInventoryComponent : public UActorComponent
+{
+	GENERATED_BODY()
+
+public:	
+	UInventoryComponent();
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+protected:
+	virtual void BeginPlay() override;
+		
+};

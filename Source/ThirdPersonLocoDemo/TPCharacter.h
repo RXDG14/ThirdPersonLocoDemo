@@ -9,6 +9,39 @@ enum class ETPCMotionMatchingType : uint8;
 enum class ETPCPlayerEnums : uint8;
 struct FInputActionValue;
 
+USTRUCT(BlueprintType)
+struct FTPCMovementSettings
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly)
+	float CrouchSpeed = 100;
+	
+	UPROPERTY(EditDefaultsOnly)
+	float WalkSpeed = 200;
+
+	UPROPERTY(EditDefaultsOnly)
+	float JogSpeed = 450;
+
+	UPROPERTY(EditDefaultsOnly)
+	float SprintSpeed = 600;
+
+	UPROPERTY(EditDefaultsOnly)
+	float LookSpeed = 0.3f; // slower is better for mouse look
+};
+
+USTRUCT(BlueprintType)
+struct FTPCCameraSettings
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly)
+	float ArmLength;
+
+	UPROPERTY(EditDefaultsOnly)
+	FVector SocketOffset;
+};
+
 UCLASS()
 class THIRDPERSONLOCODEMO_API ATPCharacter : public ACharacter
 {
@@ -47,7 +80,7 @@ private:
 	class UInputAction* IA_Aim;
 
 	UPROPERTY(EditDefaultsOnly, Category="Input")
-	class UInputAction* IA_Shoot;
+	class UInputAction* IA_Attack;
 
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	class UInputAction* IA_MMTypeSwitch;
@@ -76,46 +109,25 @@ private:
 
 	
 	// Attributes_Movement
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Movement", meta = (AllowPrivateAccess = "true"))
-	float CrouchSpeed = 100;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Movement", meta = (AllowPrivateAccess = "true"))
-	float WalkSpeed = 200;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Movement", meta = (AllowPrivateAccess = "true"))
-	float JogSpeed = 450;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Movement", meta = (AllowPrivateAccess = "true"))
-	float SprintSpeed = 600;
-
+	UPROPERTY(EditDefaultsOnly, Category="Attributes_Movement")
+	FTPCMovementSettings MovementSettings;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Attributes_Movement", meta = (AllowPrivateAccess = "true"))
 	bool bIsTPCCrouched = false;
 
 	// Attributes_Camera
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Camera", meta = (AllowPrivateAccess = "true"))
-	float CameraArmLengthClose = 100;
+	UPROPERTY(EditDefaultsOnly,Category="Attributes_Camera")
+	FTPCCameraSettings CloseCamera;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Camera", meta = (AllowPrivateAccess = "true"))
-	FVector SocketOffsetClose = {0,50,50};
+	UPROPERTY(EditDefaultsOnly,Category="Attributes_Camera")
+	FTPCCameraSettings FarCamera;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Camera", meta = (AllowPrivateAccess = "true"))
-	float CameraArmLengthFar = 250;
+	UPROPERTY(EditDefaultsOnly,Category="Attributes_Camera")
+	FTPCCameraSettings VeryFarCamera;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Camera", meta = (AllowPrivateAccess = "true"))
-	FVector SocketOffsetFar = {0,60,50};
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Camera", meta = (AllowPrivateAccess = "true"))
-	float CameraArmLengthVeryFar = 350;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Camera", meta = (AllowPrivateAccess = "true"))
-	FVector SocketOffsetVeryFar = {0,60,50};
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Camera", meta = (AllowPrivateAccess = "true"))
-	float CameraArmLengthFarMiddle = 300;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Camera", meta = (AllowPrivateAccess = "true"))
-	FVector SocketOffsetFarMiddle = {0,0,50};
-
+	UPROPERTY(EditDefaultsOnly,Category="Attributes_Camera")
+	FTPCCameraSettings FarMiddleCamera;
+	
 	float CameraInterpSpeed = 3.0f; // value = how fast?
 	float DesiredCameraArmLength = 0;
 	FVector DesiredSocketOffset = {0,0,0};

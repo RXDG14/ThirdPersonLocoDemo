@@ -73,8 +73,8 @@ void ATPCharacter::Look(const FInputActionValue& Value)
 {
 	FVector2d LookAxisVector = Value.Get<FVector2D>();
 
-	AddControllerPitchInput(LookAxisVector.Y * 0.5f);
-	AddControllerYawInput(LookAxisVector.X * 0.5f);
+	AddControllerPitchInput(LookAxisVector.Y * MovementSettings.LookSpeed);
+	AddControllerYawInput(LookAxisVector.X * MovementSettings.LookSpeed);
 }
 
 void ATPCharacter::StartSprinting()
@@ -129,20 +129,21 @@ void ATPCharacter::SetTPCMovementMode(ETPCPlayerEnums NewMovementMode)
 {
 	if (NewMovementMode == ETPCPlayerEnums::Walk)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+		//GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = MovementSettings.WalkSpeed;
 		CurrentMovementMode = NewMovementMode;
 	}
 
 	if (NewMovementMode == ETPCPlayerEnums::Jog)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = JogSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = MovementSettings.JogSpeed;
 		CurrentMovementMode = NewMovementMode;
 		bIsTPCCrouched = false;
 	}
 
 	if (NewMovementMode == ETPCPlayerEnums::Sprint)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = MovementSettings.SprintSpeed;
 		CurrentMovementMode = NewMovementMode;
 		bIsTPCCrouched = false;
 	}
@@ -157,7 +158,7 @@ void ATPCharacter::SetTPCMovementMode(ETPCPlayerEnums NewMovementMode)
 		else
 		{
 			bIsTPCCrouched = true;
-			GetCharacterMovement()->MaxWalkSpeed = CrouchSpeed;
+			GetCharacterMovement()->MaxWalkSpeed = MovementSettings.CrouchSpeed;
 			CurrentMovementMode = NewMovementMode;
 		}
 	}
@@ -187,23 +188,23 @@ void ATPCharacter::SetTPCCameraType(ETPCCameraType NewCameraType)
 	switch (NewCameraType)
 	{
 	case ETPCCameraType::Close:
-		DesiredCameraArmLength = CameraArmLengthClose;
-		DesiredSocketOffset = SocketOffsetClose;
+		DesiredCameraArmLength = CloseCamera.ArmLength;
+		DesiredSocketOffset = CloseCamera.SocketOffset;
 		break;
 
 	case ETPCCameraType::Far:
-		DesiredCameraArmLength = CameraArmLengthFar;
-		DesiredSocketOffset = SocketOffsetFar;
+		DesiredCameraArmLength = FarCamera.ArmLength;
+		DesiredSocketOffset = FarCamera.SocketOffset;
 		break;
 
 	case ETPCCameraType::VeryFar:
-		DesiredCameraArmLength = CameraArmLengthVeryFar;
-		DesiredSocketOffset = SocketOffsetVeryFar;
+		DesiredCameraArmLength = VeryFarCamera.ArmLength;
+		DesiredSocketOffset = VeryFarCamera.SocketOffset;
 		break;
 		
 	case ETPCCameraType::Far_Middle:
-		DesiredCameraArmLength = CameraArmLengthFarMiddle;
-		DesiredSocketOffset = SocketOffsetFarMiddle;
+		DesiredCameraArmLength = FarMiddleCamera.ArmLength;
+		DesiredSocketOffset = FarMiddleCamera.SocketOffset;
 		break;
 	
 	default:
