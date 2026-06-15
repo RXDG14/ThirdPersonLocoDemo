@@ -103,7 +103,8 @@ private:
 
 	
 	// Weapons
-	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Attributes_Weapons", meta = (AllowPrivateAccess = "true"))
+	bool bIsHoldingWeapon = false;
 
 	// Aiming
 
@@ -131,7 +132,7 @@ private:
 	float CameraInterpSpeed = 3.0f; // value = how fast?
 	float DesiredCameraArmLength = 0;
 	FVector DesiredSocketOffset = {0,0,0};
-
+	
 	ETPCPlayerEnums CurrentMovementMode;
 	ETPCMotionMatchingType CurrentMotionMatchingType;
 	ETPCCameraType CurrentCameraType;

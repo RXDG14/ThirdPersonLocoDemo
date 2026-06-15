@@ -129,7 +129,6 @@ void ATPCharacter::SetTPCMovementMode(ETPCPlayerEnums NewMovementMode)
 {
 	if (NewMovementMode == ETPCPlayerEnums::Walk)
 	{
-		//GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 		GetCharacterMovement()->MaxWalkSpeed = MovementSettings.WalkSpeed;
 		CurrentMovementMode = NewMovementMode;
 	}
