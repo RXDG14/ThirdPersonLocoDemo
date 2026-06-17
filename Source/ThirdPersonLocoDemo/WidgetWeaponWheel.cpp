@@ -1,24 +1,31 @@
 #include "WidgetWeaponWheel.h"
 
+#include "InventoryComponent.h"
+#include "WidgetWeaponWheelButton.h"
+#include "Kismet/GameplayStatics.h"
+
 void UWidgetWeaponWheel::NativeConstruct()
 {
 	Super::NativeConstruct();
-}
 
-void UWidgetWeaponWheel::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
-{
-	Super::NativeTick(MyGeometry, InDeltaTime);
+	if (APawn* Pawn = GetOwningPlayerPawn())
+	{
+		PlayerInventory = Pawn->FindComponentByClass<UInventoryComponent>();
+		UE_LOG(LogTemp, Warning, TEXT("Player Inventory"));
+	}
 }
 
 void UWidgetWeaponWheel::WeaponWheel_Show()
 {
+	SetVisibility(ESlateVisibility::Visible);
+	
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.2f);
 }
 
 void UWidgetWeaponWheel::WeaponWheel_Hide()
 {
-}
-
-int32 UWidgetWeaponWheel::GetSelectedSlot() const
-{
-	return -1;
+	//PlayerInventory->EquipWeaponFromInventory(SelectedWeaponButton)
+	
+	SetVisibility(ESlateVisibility::Hidden);
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
 }

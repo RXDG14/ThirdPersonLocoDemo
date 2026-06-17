@@ -1,5 +1,7 @@
 #include "InventoryComponent.h"
 
+#include "Weapon.h"
+
 UInventoryComponent::UInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -15,15 +17,23 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UInventoryComponent::EquipWeapon(APawn* NewOwner, int32 WeaponSlot)
+void UInventoryComponent::EquipWeapon(APawn* NewOwner)
 {
+	// pickup or equip weapon from inventory
 }
 
-void UInventoryComponent::UnEquipWeapon(int32 WeaponSlot)
+void UInventoryComponent::EquipWeaponFromInventory(class AWeapon* Weapon)
 {
+	
 }
 
-void UInventoryComponent::DropWeapon(int32 WeaponSlot)
+void UInventoryComponent::UnEquipWeapon(AWeapon* Weapon)
 {
+	// put back in inventory
+}
+
+void UInventoryComponent::DropWeapon(AWeapon* Weapon)
+{
+	// drop weapon and remove from inventory
 }
 
