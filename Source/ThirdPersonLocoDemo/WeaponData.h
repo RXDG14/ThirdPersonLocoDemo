@@ -3,6 +3,7 @@
 #include "Engine/DataAsset.h"
 #include "WeaponData.generated.h"
 
+enum class ETPCWeaponType : uint8;
 enum class ETPCWeaponAttackType : uint8;
 enum class ETPCWeaponFireMode : uint8;
 
@@ -36,6 +37,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	ETPCWeaponAttackType AttackType;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	ETPCWeaponType WeaponType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<AActor> ProjectileClass;

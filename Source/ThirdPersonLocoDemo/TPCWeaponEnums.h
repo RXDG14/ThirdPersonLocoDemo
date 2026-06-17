@@ -10,6 +10,14 @@ enum class ETPCWeaponAttackType : uint8
 UENUM(Blueprintable)
 enum class ETPCWeaponFireMode : uint8
 {
-	Semi UMETA(DisplayName = "Semi"),
-	Auto UMETA(DisplayName = "Auto")
+	Semi   UMETA(DisplayName = "Semi"),
+	Auto   UMETA(DisplayName = "Auto")
+};
+
+UENUM(Blueprintable)
+enum class ETPCWeaponType : uint8
+{
+	None    UMETA(DisplayName = "None"),
+	Pistol  UMETA(DisplayName = "Pistol"),
+	Rifle   UMETA(DisplayName = "Rifle")
 };

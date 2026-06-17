@@ -15,3 +15,15 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
+void UInventoryComponent::EquipWeapon(APawn* NewOwner, int32 WeaponSlot)
+{
+}
+
+void UInventoryComponent::UnEquipWeapon(int32 WeaponSlot)
+{
+}
+
+void UInventoryComponent::DropWeapon(int32 WeaponSlot)
+{
+}
+

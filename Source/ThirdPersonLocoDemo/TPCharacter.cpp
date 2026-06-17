@@ -5,25 +5,39 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "InventoryComponent.h"
 #include "TPCPlayerEnums.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 ATPCharacter::ATPCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	
+	GetCharacterMovement()->MaxAcceleration = 1200.f;
+	GetCharacterMovement()->BrakingDecelerationWalking = 1200.f;
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 180.0f, 0.0f);
 
+	bUseControllerRotationYaw = false;
+	
 	TrajectoryComponent = CreateDefaultSubobject<UCharacterTrajectoryComponent>(TEXT("CharacterTrajectoryComponent"));
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	SpringArm->SetupAttachment(GetRootComponent());
-
+	SpringArm->bUsePawnControlRotation = true;
+	
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	PlayerCamera->SetupAttachment(SpringArm);
+
+	BackPackMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BackPack"));
+	BackPackMesh->SetupAttachment(GetMesh(), TEXT("BagpackSocket"));
 }
 
 void ATPCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"),GetMesh()->DoesSocketExist(TEXT("BagpackSocket")) ? TEXT("YES") : TEXT("NO"));
 	
 	SetTPCMovementMode(ETPCPlayerEnums::Walk);
 	SetTPCMotionMatchingType(ETPCMotionMatchingType::With_OrientRotationToMovement);
@@ -35,6 +49,8 @@ void ATPCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UpdateCameraPosition(DeltaTime);
+
+	//InventoryComponent->equi
 }
 
 void ATPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

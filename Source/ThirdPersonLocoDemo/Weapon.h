@@ -12,10 +12,6 @@ class THIRDPERSONLOCODEMO_API AWeapon : public AActor
 	
 public:	
 	AWeapon();
-
-	virtual void EquipWeapon(APawn* NewOwner);
-	virtual void UnEquipWeapon();
-	virtual void DropWeapon();
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category= "Weapon")
