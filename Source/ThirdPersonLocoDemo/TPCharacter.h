@@ -1,13 +1,10 @@
 #pragma once
-
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "TPCharacter.generated.h"
 
-class UInventoryComponent;
-enum class ETPCCameraType : uint8;
-enum class ETPCMotionMatchingType : uint8;
 enum class ETPCPlayerEnums : uint8;
+enum class ETPCMotionMatchingType : uint8;
 struct FInputActionValue;
 
 USTRUCT(BlueprintType)
@@ -29,18 +26,6 @@ struct FTPCMovementSettings
 
 	UPROPERTY(EditDefaultsOnly)
 	float LookSpeed = 0.3f; // slower is better for mouse look
-};
-
-USTRUCT(BlueprintType)
-struct FTPCCameraSettings
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly)
-	float ArmLength = 100;
-
-	UPROPERTY(EditDefaultsOnly)
-	FVector SocketOffset = FVector(0, 50, 50);
 };
 
 UCLASS()
@@ -100,6 +85,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* BackPackMesh;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	class UCameraHandlerComponent* CameraHandler;
+
 
 	// Animation
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Animation", meta = (AllowPrivateAccess = "true"))
@@ -108,7 +96,7 @@ private:
 	
 	// Weapons
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory", meta=(AllowPrivateAccess="true"))
-	UInventoryComponent* InventoryComponent;
+	class UInventoryComponent* InventoryComponent;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Attributes_Weapons", meta = (AllowPrivateAccess = "true"))
 	bool bIsHoldingWeapon = false;
@@ -124,26 +112,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Attributes_Movement", meta = (AllowPrivateAccess = "true"))
 	bool bIsTPCCrouched = false;
 
-	// Attributes_Camera
-	UPROPERTY(EditDefaultsOnly,Category="Attributes_Camera")
-	FTPCCameraSettings CloseCamera = {100, {0,50,50}};
-
-	UPROPERTY(EditDefaultsOnly,Category="Attributes_Camera")
-	FTPCCameraSettings FarCamera = {250, {0,50,50}};
-
-	UPROPERTY(EditDefaultsOnly,Category="Attributes_Camera")
-	FTPCCameraSettings VeryFarCamera = {350, {0,50,50}};
-
-	UPROPERTY(EditDefaultsOnly,Category="Attributes_Camera")
-	FTPCCameraSettings FarMiddleCamera = {300, {0,50,50}};;
-	
-	float CameraInterpSpeed = 3.0f; // value = how fast?
-	float DesiredCameraArmLength = 0;
-	FVector DesiredSocketOffset = {0,0,0};
-	
 	ETPCPlayerEnums CurrentMovementMode;
 	ETPCMotionMatchingType CurrentMotionMatchingType;
-	ETPCCameraType CurrentCameraType;
 
 	////////////////////////////////////////////////////////////////////////////////
 	
@@ -157,6 +127,4 @@ private:
 	void ToggleCameraType();
 	void SetTPCMovementMode(ETPCPlayerEnums NewMovementMode);
 	void SetTPCMotionMatchingType(ETPCMotionMatchingType NewMotionMatchingType);
-	void SetTPCCameraType(ETPCCameraType NewCameraType);
-	void UpdateCameraPosition(float DeltaTime);
 };

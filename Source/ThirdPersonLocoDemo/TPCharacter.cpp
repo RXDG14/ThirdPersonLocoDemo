@@ -1,11 +1,11 @@
 #include "TPCharacter.h"
-
 #include "CharacterTrajectoryComponent.h" 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InventoryComponent.h"
+#include "CameraHandlerComponent.h"
 #include "TPCPlayerEnums.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -25,6 +25,9 @@ ATPCharacter::ATPCharacter()
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	SpringArm->SetupAttachment(GetRootComponent());
 	SpringArm->bUsePawnControlRotation = true;
+
+	CameraHandler = CreateDefaultSubobject<UCameraHandlerComponent>(TEXT("CameraHandler"));
+	CameraHandler->InitializeCamera(SpringArm);
 	
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	PlayerCamera->SetupAttachment(SpringArm);
@@ -36,21 +39,15 @@ ATPCharacter::ATPCharacter()
 void ATPCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	UE_LOG(LogTemp, Warning, TEXT("%s"),GetMesh()->DoesSocketExist(TEXT("BagpackSocket")) ? TEXT("YES") : TEXT("NO"));
 	
 	SetTPCMovementMode(ETPCPlayerEnums::Walk);
 	SetTPCMotionMatchingType(ETPCMotionMatchingType::With_OrientRotationToMovement);
-	SetTPCCameraType(ETPCCameraType::Far);
+	CameraHandler->SetCameraType(ETPCCameraType::Far);
 }
 
 void ATPCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	UpdateCameraPosition(DeltaTime);
-
-	//InventoryComponent->equi
 }
 
 void ATPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -120,25 +117,7 @@ void ATPCharacter::ToggleMotionMatchingType()
 
 void ATPCharacter::ToggleCameraType()
 {
-	switch (CurrentCameraType)
-	{
-	case ETPCCameraType::Close:
-		SetTPCCameraType(ETPCCameraType::Far);
-		break;
-
-	case ETPCCameraType::Far:
-		SetTPCCameraType(ETPCCameraType::VeryFar);
-		break;
-
-	case ETPCCameraType::VeryFar:
-		SetTPCCameraType(ETPCCameraType::Far_Middle);
-		break;
-
-	case ETPCCameraType::Far_Middle:
-	default:
-		SetTPCCameraType(ETPCCameraType::Close);
-		break;
-	}
+	CameraHandler->ToggleCameraType();
 }
 
 void ATPCharacter::SetTPCMovementMode(ETPCPlayerEnums NewMovementMode)
@@ -177,6 +156,8 @@ void ATPCharacter::SetTPCMovementMode(ETPCPlayerEnums NewMovementMode)
 			CurrentMovementMode = NewMovementMode;
 		}
 	}
+
+	CameraHandler->SetCrouched(bIsTPCCrouched);
 }
 
 void ATPCharacter::SetTPCMotionMatchingType(ETPCMotionMatchingType NewMotionMatchingType)
@@ -194,50 +175,4 @@ void ATPCharacter::SetTPCMotionMatchingType(ETPCMotionMatchingType NewMotionMatc
 		GetCharacterMovement()->bOrientRotationToMovement = true;
 		CurrentMotionMatchingType = NewMotionMatchingType;
 	}
-}
-
-void ATPCharacter::SetTPCCameraType(ETPCCameraType NewCameraType)
-{
-	CurrentCameraType = NewCameraType;
-
-	switch (NewCameraType)
-	{
-	case ETPCCameraType::Close:
-		DesiredCameraArmLength = CloseCamera.ArmLength;
-		DesiredSocketOffset = CloseCamera.SocketOffset;
-		break;
-
-	case ETPCCameraType::Far:
-		DesiredCameraArmLength = FarCamera.ArmLength;
-		DesiredSocketOffset = FarCamera.SocketOffset;
-		break;
-
-	case ETPCCameraType::VeryFar:
-		DesiredCameraArmLength = VeryFarCamera.ArmLength;
-		DesiredSocketOffset = VeryFarCamera.SocketOffset;
-		break;
-		
-	case ETPCCameraType::Far_Middle:
-		DesiredCameraArmLength = FarMiddleCamera.ArmLength;
-		DesiredSocketOffset = FarMiddleCamera.SocketOffset;
-		break;
-	
-	default:
-		break;
-	}
-}
-
-void ATPCharacter::UpdateCameraPosition(float DeltaTime)
-{
-	if (bIsTPCCrouched)
-	{
-		DesiredSocketOffset.Z = 0;
-	}
-	else
-	{
-		DesiredSocketOffset.Z = 50;
-	}
-	
-	SpringArm->TargetArmLength = FMath::FInterpTo(SpringArm->TargetArmLength, DesiredCameraArmLength, DeltaTime, CameraInterpSpeed);
-	SpringArm->SocketOffset = FMath::VInterpTo(SpringArm->SocketOffset, DesiredSocketOffset, DeltaTime, CameraInterpSpeed);
 }
