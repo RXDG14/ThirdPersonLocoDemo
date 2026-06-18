@@ -42,7 +42,6 @@ protected:
 	virtual void BeginPlay() override;
 	
 private:
-
 	// Input
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	class UInputAction* IA_Move;
@@ -69,13 +68,16 @@ private:
 	class UInputAction* IA_Attack;
 
 	UPROPERTY(EditDefaultsOnly, Category="Input")
+	class UInputAction* IA_Interact;
+
+	UPROPERTY(EditDefaultsOnly, Category="Input")
 	class UInputAction* IA_MMTypeSwitch;
 
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	class UInputAction* IA_CameraTypeSwitch;
 
 
-	// Attached Components
+	// Attachments
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArm;
 
@@ -85,19 +87,22 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* BackPackMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+
+	// Actor Components
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraHandlerComponent* CameraHandler;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory", meta=(AllowPrivateAccess="true"))
+	class UInventoryComponent* InventoryComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UInteractionComponent* InteractionComponent;
 
-	// Animation
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Animation", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UCharacterTrajectoryComponent* TrajectoryComponent;
 
 	
 	// Weapons
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Inventory", meta=(AllowPrivateAccess="true"))
-	class UInventoryComponent* InventoryComponent;
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Attributes_Weapons", meta = (AllowPrivateAccess = "true"))
 	bool bIsHoldingWeapon = false;
 
@@ -119,6 +124,7 @@ private:
 	
 	void MovePlayer(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void Interact(const FInputActionValue& Value);
 	void StartSprinting();
 	void StopSprinting();
 	void ToggleCrouch();

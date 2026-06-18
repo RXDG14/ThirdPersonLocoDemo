@@ -1,10 +1,11 @@
 #include "InventoryComponent.h"
 
-#include "Weapon.h"
+#include "Weapons/Weapon.h"
 
 UInventoryComponent::UInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	CurrentWeapon = nullptr;
 }
 
 void UInventoryComponent::BeginPlay()
@@ -17,23 +18,77 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UInventoryComponent::EquipWeapon(APawn* NewOwner)
+void UInventoryComponent::PickupWeapon(AWeapon* Weapon)
 {
-	// pickup or equip weapon from inventory
+	// Example flow:
+	// - find weapon in world
+	// - add to WeaponsInInventory
+	// - maybe auto equip if nothing is currently equipped
 }
 
-void UInventoryComponent::EquipWeaponFromInventory(class AWeapon* Weapon)
+void UInventoryComponent::EquipWeapon()
 {
-	
+	// Optional: equip currently selected/default weapon
+	// You can call EquipWeaponFromInventory(CurrentWeapon) here if needed
+}
+
+void UInventoryComponent::EquipWeaponFromInventory(AWeapon* Weapon)
+{
+	if (!Weapon)
+	{
+		return;
+	}
+
+	if (Weapon == CurrentWeapon)
+	{
+		return;
+	}
+
+	CurrentWeapon = Weapon;
+
+	// Put your real equip logic here:
+	// - attach weapon to character mesh/socket
+	// - hide/disable old weapon
+	// - show/enable new weapon
+	// - update animation/aim logic if needed
 }
 
 void UInventoryComponent::UnEquipWeapon(AWeapon* Weapon)
 {
-	// put back in inventory
+	if (!Weapon)
+	{
+		return;
+	}
+
+	if (Weapon == CurrentWeapon)
+	{
+		CurrentWeapon = nullptr;
+	}
+
+	// Put your real unequip logic here
 }
 
 void UInventoryComponent::DropWeapon(AWeapon* Weapon)
 {
-	// drop weapon and remove from inventory
+	if (!Weapon)
+	{
+		return;
+	}
+
+	WeaponsInInventory.Remove(Weapon);
+
+	if (Weapon == CurrentWeapon)
+	{
+		CurrentWeapon = nullptr;
+	}
+
+	// Put your real drop logic here:
+	// - detach from character
+	// - spawn physics/drop behavior
+	// - optionally destroy or re-enable pickup
 }
 
+int32 UInventoryComponent::GetNumWeapons() const
+{
+	return WeaponsInInventory.Num();
+}

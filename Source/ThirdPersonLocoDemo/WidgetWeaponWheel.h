@@ -1,7 +1,13 @@
 #pragma once
+
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "WidgetWeaponWheel.generated.h"
+
+class AWeapon;
+class UInventoryComponent;
+class UVerticalBox;
+class UWidgetWeaponWheelButton;
 
 UCLASS()
 class THIRDPERSONLOCODEMO_API UWidgetWeaponWheel : public UUserWidget
@@ -13,15 +19,25 @@ public:
 
 	void WeaponWheel_Show();
 	void WeaponWheel_Hide();
+	void BuildWeaponList();
 
 protected:
 	UPROPERTY(meta=(BindWidget))
-	class UVerticalBox* WeaponList;
-	
+	UVerticalBox* WeaponList;
+
+	UPROPERTY(EditDefaultsOnly, Category="Weapons")
+	TSubclassOf<UWidgetWeaponWheelButton> WeaponButtonClass;
+
 private:
 	UPROPERTY()
-	class UWidgetWeaponWheelButton* SelectedWeaponButton;
+	AWeapon* SelectedWeapon;
 
 	UPROPERTY()
-	class UInventoryComponent* PlayerInventory;
+	UInventoryComponent* PlayerInventory;
+
+	UPROPERTY()
+	TArray<UWidgetWeaponWheelButton*> WeaponButtons;
+
+	void SelectWeapon(AWeapon* Weapon);
+	void RefreshSelection();
 };

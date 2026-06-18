@@ -1,0 +1,44 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "../Interactable.h"
+#include "Weapon.generated.h"
+
+class UWeaponData;
+class USkeletalMeshComponent;
+class UInteractableComponent;
+class APawn;
+
+UCLASS()
+class THIRDPERSONLOCODEMO_API AWeapon : public AActor, public IInteractable
+{
+	GENERATED_BODY()
+	
+public:	
+	AWeapon();
+
+	UWeaponData* GetWeaponData() const;
+
+	virtual void Interact_Implementation(APawn* InteractingPawn) override;
+	virtual FText GetInteractionText_Implementation() const override;
+
+	APawn* GetWeaponOwner() const { return WeaponOwner; }
+	void SetWeaponOwner(APawn* NewOwner);
+
+	void EnableWorldCollision();
+	void DisableWorldCollision();
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Weapon")
+	USkeletalMeshComponent* WeaponMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Interaction")
+	UInteractableComponent* InteractableComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Weapon")
+	UWeaponData* WeaponData;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Weapon")
+	APawn* WeaponOwner;
+};

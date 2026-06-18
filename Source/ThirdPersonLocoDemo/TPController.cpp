@@ -1,15 +1,24 @@
 #include "TPController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "InputAction.h"
+#include "InputMappingContext.h"
 #include "WidgetWeaponWheel.h"
+#include "Kismet/GameplayStatics.h"
 
 void ATPController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
 	{
-		Subsystem->AddMappingContext(IMC_TPCharacter, 0);
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+		{
+			if (IMC_TPCharacter)
+			{
+				Subsystem->AddMappingContext(IMC_TPCharacter, 0);
+			}
+		}
 	}
 
 	CreateWeaponWheelWidget();
@@ -19,32 +28,35 @@ void ATPController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	if (UEnhancedInputComponent* EIC = CastChecked<UEnhancedInputComponent>(InputComponent))
+	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent))
 	{
-		// do bindings here for UI
-		EIC->BindAction(IA_WeaponWheel,ETriggerEvent::Started,this,&ATPController::ShowWeaponWheel);
-		EIC->BindAction(IA_WeaponWheel,ETriggerEvent::Completed,this,&ATPController::HideWeaponWheel);
+		if (IA_WeaponWheel)
+		{
+			EIC->BindAction(IA_WeaponWheel, ETriggerEvent::Started, this, &ATPController::ShowWeaponWheel);
+			EIC->BindAction(IA_WeaponWheel, ETriggerEvent::Completed, this, &ATPController::HideWeaponWheel);
+		}
 	}
 }
 
 void ATPController::CreateWeaponWheelWidget()
 {
-	if (WeaponWheelClass)
+	if (!WidgetWeaponWheelClass)
 	{
-		WidgetWeaponWheel = CreateWidget<UWidgetWeaponWheel>(this, WeaponWheelClass);
+		return;
+	}
 
-		if (WidgetWeaponWheel)
-		{
-			WidgetWeaponWheel->AddToViewport();
-			WidgetWeaponWheel->SetVisibility(ESlateVisibility::Hidden);
-		}
+	WidgetWeaponWheel = CreateWidget<UWidgetWeaponWheel>(this, WidgetWeaponWheelClass);
+
+	if (WidgetWeaponWheel)
+	{
+		WidgetWeaponWheel->AddToViewport();
+		WidgetWeaponWheel->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
 void ATPController::ShowWeaponWheel()
 {
-	const FInputModeGameAndUI InputModeGameAndUI;
-	SetInputMode(InputModeGameAndUI);
+	SetInputMode(FInputModeGameAndUI());
 	SetShowMouseCursor(true);
 
 	SetIgnoreMoveInput(true);
@@ -54,24 +66,22 @@ void ATPController::ShowWeaponWheel()
 	{
 		WidgetWeaponWheel->WeaponWheel_Show();
 	}
+
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.2f);
 }
 
 void ATPController::HideWeaponWheel()
 {
-	const FInputModeGameOnly InputModeGameOnly;
-	SetInputMode(InputModeGameOnly);
+	if (WidgetWeaponWheel)
+	{
+		WidgetWeaponWheel->WeaponWheel_Hide();
+	}
+
+	SetInputMode(FInputModeGameOnly());
 	SetShowMouseCursor(false);
 
 	SetIgnoreMoveInput(false);
 	SetIgnoreLookInput(false);
 
-	if (WidgetWeaponWheel)
-	{
-		WidgetWeaponWheel->WeaponWheel_Hide();
-		//if (WidgetWeaponWheel->GetSelectedSlot() > -1)
-		//{
-			//SelectedWeaponSlot = WidgetWeaponWheel->GetSelectedSlot();
-			//OnWeaponWheelHid.Broadcast(SelectedWeaponSlot);
-		//}
-	}
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
 }

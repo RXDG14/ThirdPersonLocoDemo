@@ -7,7 +7,7 @@ enum class ETPCWeaponType : uint8;
 enum class ETPCWeaponAttackType : uint8;
 enum class ETPCWeaponFireMode : uint8;
 
-UCLASS()
+UCLASS(BlueprintType)
 class THIRDPERSONLOCODEMO_API UWeaponData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
