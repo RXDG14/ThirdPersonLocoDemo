@@ -64,7 +64,7 @@ void ATPController::ShowWeaponWheel()
 
 	if (WidgetWeaponWheel)
 	{
-		WidgetWeaponWheel->WeaponWheel_Show();
+		//WidgetWeaponWheel->WeaponWheel_Show();
 	}
 
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.2f);
@@ -74,7 +74,7 @@ void ATPController::HideWeaponWheel()
 {
 	if (WidgetWeaponWheel)
 	{
-		WidgetWeaponWheel->WeaponWheel_Hide();
+		//WidgetWeaponWheel->WeaponWheel_Hide();
 	}
 
 	SetInputMode(FInputModeGameOnly());

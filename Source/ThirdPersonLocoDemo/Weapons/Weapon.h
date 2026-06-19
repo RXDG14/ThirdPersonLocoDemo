@@ -17,17 +17,7 @@ class THIRDPERSONLOCODEMO_API AWeapon : public AActor, public IInteractable
 	
 public:	
 	AWeapon();
-
 	UWeaponData* GetWeaponData() const;
-
-	virtual void Interact_Implementation(APawn* InteractingPawn) override;
-	virtual FText GetInteractionText_Implementation() const override;
-
-	APawn* GetWeaponOwner() const { return WeaponOwner; }
-	void SetWeaponOwner(APawn* NewOwner);
-
-	void EnableWorldCollision();
-	void DisableWorldCollision();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Weapon")
@@ -38,7 +28,4 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Weapon")
 	UWeaponData* WeaponData;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Weapon")
-	APawn* WeaponOwner;
 };

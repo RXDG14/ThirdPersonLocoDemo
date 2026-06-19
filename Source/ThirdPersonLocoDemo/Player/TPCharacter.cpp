@@ -21,7 +21,11 @@ ATPCharacter::ATPCharacter()
 	bUseControllerRotationYaw = false;
 	
 	TrajectoryComponent = CreateDefaultSubobject<UCharacterTrajectoryComponent>(TEXT("CharacterTrajectoryComponent"));
+
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+	//InventoryComponent->OnWeaponEquipped.BindUObject(this,&ATPCharacter::OnWeaponEquipped);
+	//InventoryComponent->OnWeaponUnEquipped.BindUObject(this,&ATPCharacter::OnWeaponUnEquipped);
+	
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>(TEXT("InteractionComponent"));
 	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
@@ -63,7 +67,7 @@ void ATPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		EIC->BindAction(IA_Jump, ETriggerEvent::Started, this, &ATPCharacter::Jump);
 		EIC->BindAction(IA_Crouch, ETriggerEvent::Started, this, &ATPCharacter::ToggleCrouch);
 		EIC->BindAction(IA_Walk, ETriggerEvent::Started, this, &ATPCharacter::ToggleWalkJog);
-		EIC->BindAction(IA_Interact, ETriggerEvent::Triggered, this, &ATPCharacter::Interact);
+		EIC->BindAction(IA_Interact, ETriggerEvent::Started, this, &ATPCharacter::Interact);
 		EIC->BindAction(IA_MMTypeSwitch, ETriggerEvent::Started, this, &ATPCharacter::ToggleMotionMatchingType);
 		EIC->BindAction(IA_CameraTypeSwitch, ETriggerEvent::Started, this, &ATPCharacter::ToggleCameraType);
 		EIC->BindAction(IA_Sprint, ETriggerEvent::Started, this, &ATPCharacter::StartSprinting);
@@ -95,10 +99,7 @@ void ATPCharacter::Look(const FInputActionValue& Value)
 
 void ATPCharacter::Interact(const FInputActionValue& Value)
 {
-	if (InteractionComponent)
-	{
-		InteractionComponent->Interact();
-	}
+
 }
 
 void ATPCharacter::StartSprinting()
@@ -186,4 +187,14 @@ void ATPCharacter::SetTPCMotionMatchingType(ETPCMotionMatchingType NewMotionMatc
 		GetCharacterMovement()->bOrientRotationToMovement = true;
 		CurrentMotionMatchingType = NewMotionMatchingType;
 	}
+}
+
+void ATPCharacter::OnWeaponEquipped(class AWeapon* Weapon)
+{
+	
+}
+
+void ATPCharacter::OnWeaponUnEquipped()
+{
+	
 }

@@ -15,9 +15,4 @@ class THIRDPERSONLOCODEMO_API IInteractable
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Interaction")
-	void Interact(APawn* InteractingPawn);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Interaction")
-	FText GetInteractionText() const;
 };

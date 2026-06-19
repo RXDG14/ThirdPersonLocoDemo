@@ -133,4 +133,6 @@ private:
 	void ToggleCameraType();
 	void SetTPCMovementMode(ETPCPlayerEnums NewMovementMode);
 	void SetTPCMotionMatchingType(ETPCMotionMatchingType NewMotionMatchingType);
+	void OnWeaponEquipped(class AWeapon* Weapon);
+	void OnWeaponUnEquipped();
 };
