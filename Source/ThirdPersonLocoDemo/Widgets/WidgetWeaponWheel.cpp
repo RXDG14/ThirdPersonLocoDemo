@@ -1,9 +1,7 @@
 #include "WidgetWeaponWheel.h"
-
-#include "InventoryComponent.h"
+#include "../Weapons/InventoryComponent.h"
+#include "../Weapons/Weapon.h"
 #include "WidgetWeaponWheelButton.h"
-#include "Weapons/Weapon.h"
-
 #include "Components/VerticalBox.h"
 #include "Kismet/GameplayStatics.h"
 

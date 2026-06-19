@@ -2,8 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Components/WidgetComponent.h"
 #include "InteractableComponent.generated.h"
 
+enum class EWidgetSpace : uint8;
 class USphereComponent;
 class UWidgetComponent;
 class UWidgetInteraction;
@@ -31,10 +33,13 @@ protected:
 	TSubclassOf<UWidgetInteraction> InteractionWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Interaction")
-	float InteractionRadius = 80.f;
+	float InteractionRadius = 60.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Interaction")
-	FVector WidgetRelativeLocation = FVector(0.f, 0.f, 100.f);
+	FVector WidgetRelativeLocation = FVector(0.f, 0.f, 0.f);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Interaction")
+	EWidgetSpace WidgetSpace = EWidgetSpace::Screen;
 
 	UPROPERTY()
 	USphereComponent* InteractionSphere;
@@ -46,20 +51,10 @@ protected:
 	APawn* OverlappingPawn;
 
 	UFUNCTION()
-	void OnInteractionSphereBeginOverlap(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepResult);
+	void OnInteractionSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	void OnInteractionSphereEndOverlap(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex);
+	void OnInteractionSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
 	void CreateInteractionSphere();

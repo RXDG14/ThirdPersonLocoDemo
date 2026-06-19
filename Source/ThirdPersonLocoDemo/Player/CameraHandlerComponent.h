@@ -1,7 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "TPCPlayerEnums.h"
+#include "../Enums/TPCPlayerEnums.h"
 #include "CameraHandlerComponent.generated.h"
 
 class USpringArmComponent;

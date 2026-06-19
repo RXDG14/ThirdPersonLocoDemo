@@ -1,6 +1,6 @@
 #include "WidgetWeaponWheelButton.h"
-#include "Weapons/Weapon.h"
-#include "WeaponData.h"
+#include "../Weapons/Weapon.h"
+#include "../Weapons/WeaponData.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 

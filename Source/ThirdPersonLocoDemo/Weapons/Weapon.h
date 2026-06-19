@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "../Interactable.h"
+#include "../Interaction/Interactable.h"
 #include "Weapon.generated.h"
 
 class UWeaponData;

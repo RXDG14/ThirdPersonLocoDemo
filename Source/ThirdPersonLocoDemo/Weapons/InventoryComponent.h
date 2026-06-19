@@ -17,7 +17,6 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void PickupWeapon(AWeapon* Weapon);
-	void EquipWeapon();
 	void EquipWeaponFromInventory(AWeapon* Weapon);
 	void UnEquipWeapon(AWeapon* Weapon);
 	void DropWeapon(AWeapon* Weapon);

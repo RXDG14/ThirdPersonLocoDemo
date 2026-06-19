@@ -4,10 +4,10 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "InventoryComponent.h"
+#include "../Weapons/InventoryComponent.h"
 #include "CameraHandlerComponent.h"
-#include "InteractionComponent.h"
-#include "TPCPlayerEnums.h"
+#include "../Interaction/InteractionComponent.h"
+#include "../Enums/TPCPlayerEnums.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 ATPCharacter::ATPCharacter()

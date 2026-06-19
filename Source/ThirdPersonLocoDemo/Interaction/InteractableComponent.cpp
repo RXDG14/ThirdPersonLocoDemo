@@ -2,7 +2,7 @@
 
 #include "Interactable.h"
 #include "InteractionComponent.h"
-#include "WidgetInteraction.h"
+#include "../Widgets/WidgetInteraction.h"
 
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
@@ -116,11 +116,11 @@ void UInteractableComponent::CreateInteractionWidget()
 		return;
 	}
 
-	InteractionWidgetComponent->SetWidgetSpace(EWidgetSpace::World);
+	InteractionWidgetComponent->SetWidgetClass(InteractionWidgetClass);
+	InteractionWidgetComponent->SetWidgetSpace(WidgetSpace);
 	InteractionWidgetComponent->SetDrawAtDesiredSize(true);
 	InteractionWidgetComponent->SetVisibility(false);
 	InteractionWidgetComponent->SetRelativeLocation(WidgetRelativeLocation);
-	InteractionWidgetComponent->SetWidgetClass(InteractionWidgetClass);
 
 	InteractionWidgetComponent->SetupAttachment(OwnerRoot);
 	OwnerActor->AddInstanceComponent(InteractionWidgetComponent);
@@ -168,13 +168,7 @@ void UInteractableComponent::HidePrompt()
 	}
 }
 
-void UInteractableComponent::OnInteractionSphereBeginOverlap(
-	UPrimitiveComponent* OverlappedComponent,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex,
-	bool bFromSweep,
-	const FHitResult& SweepResult)
+void UInteractableComponent::OnInteractionSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	APawn* Pawn = Cast<APawn>(OtherActor);
 	if (!Pawn)
@@ -192,11 +186,7 @@ void UInteractableComponent::OnInteractionSphereBeginOverlap(
 	ShowPrompt();
 }
 
-void UInteractableComponent::OnInteractionSphereEndOverlap(
-	UPrimitiveComponent* OverlappedComponent,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex)
+void UInteractableComponent::OnInteractionSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	APawn* Pawn = Cast<APawn>(OtherActor);
 	if (!Pawn)

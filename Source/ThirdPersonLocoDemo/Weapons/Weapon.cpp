@@ -1,8 +1,8 @@
 #include "Weapon.h"
 
-#include "../WeaponData.h"
-#include "../InventoryComponent.h"
-#include "../InteractableComponent.h"
+#include "../Weapons/WeaponData.h"
+#include "../Weapons/InventoryComponent.h"
+#include "../Interaction/InteractableComponent.h"
 
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Pawn.h"
@@ -73,10 +73,8 @@ FText AWeapon::GetInteractionText_Implementation() const
 {
 	if (WeaponData)
 	{
-		return FText::Format(
-			FText::FromString(TEXT("Press E to Pick Up {0}")),
-			WeaponData->WeaponName);
+		return FText::Format(FText::FromString(TEXT("E")), WeaponData->WeaponName);
 	}
 
-	return FText::FromString(TEXT("Press E to Pick Up Weapon"));
+	return FText::FromString(TEXT("E"));
 }
