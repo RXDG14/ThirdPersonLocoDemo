@@ -1,10 +1,8 @@
 #include "InteractableComponent.h"
-
 #include "InteractionComponent.h"
 #include "../Widgets/WidgetInteraction.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
-#include "ThirdPersonLocoDemo/Enums/TPCInteractionEnums.h"
 #include "ThirdPersonLocoDemo/Player/TPCharacter.h"
 
 UInteractableComponent::UInteractableComponent()
@@ -52,15 +50,7 @@ void UInteractableComponent::CreateInteractableWidget()
 
 void UInteractableComponent::BeginInteraction_Implementation(APawn* Interactor)
 {
-	switch (InteractableType)
-	{
-		case ETPCInteractableType::Weapon:
-			OnWeaponPicked.ExecuteIfBound(ParentActor);
-			break;
-		case ETPCInteractableType::Door:
-			break;
-	}
-	UE_LOG(LogTemp, Warning, TEXT("Interact called on %s by %s"), *GetOwner()->GetName(), *GetNameSafe(Interactor));
+	OnInteracted.ExecuteIfBound(Interactor);
 }
 
 void UInteractableComponent::OnInteractableSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

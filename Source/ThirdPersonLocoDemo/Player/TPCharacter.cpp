@@ -72,6 +72,7 @@ void ATPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		EIC->BindAction(IA_CameraTypeSwitch, ETriggerEvent::Started, this, &ATPCharacter::ToggleCameraType);
 		EIC->BindAction(IA_Sprint, ETriggerEvent::Started, this, &ATPCharacter::StartSprinting);
 		EIC->BindAction(IA_Sprint, ETriggerEvent::Completed, this, &ATPCharacter::StopSprinting);
+		EIC->BindAction(IA_Drop, ETriggerEvent::Started, this, &ATPCharacter::DropWeapon);
 	}
 }
 
@@ -100,6 +101,11 @@ void ATPCharacter::Look(const FInputActionValue& Value)
 void ATPCharacter::Interact(const FInputActionValue& Value)
 {
 	InteractionComponent->Interact();
+}
+
+void ATPCharacter::DropWeapon(const FInputActionValue& Value)
+{
+	InventoryComponent->DropWeapon();
 }
 
 void ATPCharacter::StartSprinting()

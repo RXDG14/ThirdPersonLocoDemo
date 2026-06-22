@@ -76,6 +76,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	class UInputAction* IA_CameraTypeSwitch;
 
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	class UInputAction* IA_Drop;
+
 
 	// Attachments
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
@@ -125,6 +128,7 @@ private:
 	void MovePlayer(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
+	void DropWeapon(const FInputActionValue& Value);
 	void StartSprinting();
 	void StopSprinting();
 	void ToggleCrouch();

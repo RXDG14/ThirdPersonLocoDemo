@@ -16,10 +16,10 @@ public:
 
 	virtual void BeginPlay() override;
 
-	DECLARE_DELEGATE_OneParam(FOnWeaponPicked, AActor*)
-	FOnWeaponPicked OnWeaponPicked;
+	DECLARE_DELEGATE_OneParam(FOnInteracted, APawn* Interactor)
+	FOnInteracted OnInteracted;
 	
-	UPROPERTY(EditDefaultsOnly, Category="Interactable")
+	UPROPERTY(EditDefaultsOnly, Category="Interactable") // used for widget
 	ETPCInteractableType InteractableType;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Interactable_Widget")

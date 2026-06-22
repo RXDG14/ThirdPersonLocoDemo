@@ -20,6 +20,8 @@ public:
 	UWeaponData* GetWeaponData() const;
 
 protected:
+	virtual void BeginPlay() override;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Weapon")
 	USkeletalMeshComponent* WeaponMesh;
 
@@ -28,4 +30,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Weapon")
 	UWeaponData* WeaponData;
+
+private:
+	UFUNCTION()
+	void OnInteracted(APawn* Interactor);
 };
