@@ -99,7 +99,7 @@ void ATPCharacter::Look(const FInputActionValue& Value)
 
 void ATPCharacter::Interact(const FInputActionValue& Value)
 {
-
+	InteractionComponent->Interact();
 }
 
 void ATPCharacter::StartSprinting()
