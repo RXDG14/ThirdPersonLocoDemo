@@ -32,6 +32,7 @@ public:
 	float InteractableSphereRadius = 50;
 
 	virtual void BeginInteraction_Implementation(APawn* Interactor) override;
+	void SetInteractionMode(bool bEnabled);
 	
 private:
 	UPROPERTY()

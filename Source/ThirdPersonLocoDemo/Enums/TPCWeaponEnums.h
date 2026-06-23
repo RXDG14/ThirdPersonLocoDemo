@@ -21,3 +21,10 @@ enum class ETPCWeaponType : uint8
 	Pistol  UMETA(DisplayName = "Pistol"),
 	Rifle   UMETA(DisplayName = "Rifle")
 };
+
+UENUM(Blueprintable)
+enum class ETPCWeaponState : uint8
+{
+	Equipped    UMETA(DisplayName = "Equipped"),
+	UnEquipped  UMETA(DisplayName = "UnEquipped")
+};

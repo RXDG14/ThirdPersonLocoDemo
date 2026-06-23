@@ -53,12 +53,33 @@ void UInteractableComponent::BeginInteraction_Implementation(APawn* Interactor)
 	OnInteracted.ExecuteIfBound(Interactor);
 }
 
+void UInteractableComponent::SetInteractionMode(bool bEnabled)
+{
+	if (!InteractableSphere || !InteractableWidgetComponent)
+		return;
+
+	if (bEnabled)
+	{
+		InteractableWidgetComponent->SetVisibility(false);
+
+		InteractableSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		InteractableSphere->SetGenerateOverlapEvents(true);
+	}
+	else
+	{
+		InteractableWidgetComponent->SetVisibility(false);
+
+		InteractableSphere->SetGenerateOverlapEvents(false);
+		InteractableSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+}
+
 void UInteractableComponent::OnInteractableSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor->IsA(ATPCharacter::StaticClass()))
 	{
 		InteractableWidgetComponent->SetVisibility(true);
-
+		
 		if (ATPCharacter* PlayerCharacter = Cast<ATPCharacter>(OtherActor))
 		{
 			if (UInteractionComponent* InteractionComp = PlayerCharacter->FindComponentByClass<UInteractionComponent>())
@@ -75,7 +96,7 @@ void UInteractableComponent::OnInteractableSphereEndOverlap(UPrimitiveComponent*
 	if (OtherActor->IsA(ATPCharacter::StaticClass()))
 	{
 		InteractableWidgetComponent->SetVisibility(false);
-
+		
 		if (ATPCharacter* PlayerCharacter = Cast<ATPCharacter>(OtherActor))
 		{
 			if (UInteractionComponent* InteractionComp = PlayerCharacter->FindComponentByClass<UInteractionComponent>())

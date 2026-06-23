@@ -16,6 +16,7 @@ class THIRDPERSONLOCODEMO_API ATPController : public APlayerController
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
+	virtual void OnPossess(APawn* InPawn) override;
 
 private:
 	// Input
@@ -23,8 +24,10 @@ private:
 	UInputMappingContext* IMC_TPCharacter;
 
 	UPROPERTY(EditDefaultsOnly, Category="Input")
-	UInputAction* IA_WeaponWheel;
+	UInputMappingContext* IMC_WeaponWheel;
 
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	UInputAction* IA_WeaponWheel;
 	
 	// UI
 	UPROPERTY(EditDefaultsOnly, Category="UI")

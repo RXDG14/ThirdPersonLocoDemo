@@ -10,8 +10,10 @@ class THIRDPERSONLOCODEMO_API UInventoryComponent : public UActorComponent
 
 public:
 	UInventoryComponent();
+
 	void PickupWeapon(class AWeapon* Weapon);
 	void DropWeapon();
+	const TArray<AWeapon*>& GetWeaponsInventory() const { return WeaponsInventory; }
 	
 protected:
 	virtual void BeginPlay() override;
@@ -30,4 +32,5 @@ private:
 	void DetachWeaponFromPlayer();
 	void AddWeaponToInventory(AWeapon* Weapon);
 	void RemoveWeaponFromInventory(AWeapon* Weapon);
+	void AddWeaponAsAmmo(AWeapon* Weapon);
 };

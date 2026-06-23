@@ -5,6 +5,7 @@
 #include "InputMappingContext.h"
 #include "../Widgets/WidgetWeaponWheel.h"
 #include "Kismet/GameplayStatics.h"
+#include "ThirdPersonLocoDemo/Weapons/InventoryComponent.h"
 
 void ATPController::BeginPlay()
 {
@@ -16,12 +17,11 @@ void ATPController::BeginPlay()
 		{
 			if (IMC_TPCharacter)
 			{
-				Subsystem->AddMappingContext(IMC_TPCharacter, 0);
+				Subsystem->AddMappingContext(IMC_TPCharacter, 1); // high number = high priority
+				Subsystem->AddMappingContext(IMC_WeaponWheel, 0);
 			}
 		}
 	}
-
-	CreateWeaponWheelWidget();
 }
 
 void ATPController::SetupInputComponent()
@@ -38,6 +38,13 @@ void ATPController::SetupInputComponent()
 	}
 }
 
+void ATPController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	CreateWeaponWheelWidget();
+}
+
 void ATPController::CreateWeaponWheelWidget()
 {
 	if (!WidgetWeaponWheelClass)
@@ -51,37 +58,50 @@ void ATPController::CreateWeaponWheelWidget()
 	{
 		WidgetWeaponWheel->AddToViewport();
 		WidgetWeaponWheel->SetVisibility(ESlateVisibility::Hidden);
+
+		if (UInventoryComponent* InventoryComp = GetPawn()->FindComponentByClass<UInventoryComponent>())
+		{
+			WidgetWeaponWheel->SetInventoryComponent(InventoryComp);
+		}
 	}
 }
 
 void ATPController::ShowWeaponWheel()
 {
-	SetInputMode(FInputModeGameAndUI());
-	SetShowMouseCursor(true);
-
-	SetIgnoreMoveInput(true);
-	SetIgnoreLookInput(true);
+	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+		{
+			Subsystem->RemoveMappingContext(IMC_TPCharacter);
+		}
+	}
 
 	if (WidgetWeaponWheel)
 	{
-		//WidgetWeaponWheel->WeaponWheel_Show();
+		WidgetWeaponWheel->WeaponWheel_Show();
 	}
 
+	SetInputMode(FInputModeGameAndUI());
+	SetShowMouseCursor(true);
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.2f);
 }
 
 void ATPController::HideWeaponWheel()
 {
+	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+		{
+			Subsystem->AddMappingContext(IMC_TPCharacter, 1);
+		}
+	}
+
 	if (WidgetWeaponWheel)
 	{
-		//WidgetWeaponWheel->WeaponWheel_Hide();
+		WidgetWeaponWheel->WeaponWheel_Hide();
 	}
 
 	SetInputMode(FInputModeGameOnly());
 	SetShowMouseCursor(false);
-
-	SetIgnoreMoveInput(false);
-	SetIgnoreLookInput(false);
-
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
 }

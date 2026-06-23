@@ -5,6 +5,7 @@
 #include "../Interaction/Interactable.h"
 #include "Weapon.generated.h"
 
+enum class ETPCWeaponState : uint8;
 class UWeaponData;
 class USkeletalMeshComponent;
 class UInteractableComponent;
@@ -18,7 +19,8 @@ class THIRDPERSONLOCODEMO_API AWeapon : public AActor, public IInteractable
 public:	
 	AWeapon();
 	UWeaponData* GetWeaponData() const;
-
+	void SetWeaponState(ETPCWeaponState NewWeaponState);
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -34,4 +36,6 @@ protected:
 private:
 	UFUNCTION()
 	void OnInteracted(APawn* Interactor);
+
+	ETPCWeaponState CurrentWeaponState;
 };
