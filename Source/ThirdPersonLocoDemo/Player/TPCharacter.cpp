@@ -105,7 +105,7 @@ void ATPCharacter::Interact(const FInputActionValue& Value)
 
 void ATPCharacter::DropWeapon(const FInputActionValue& Value)
 {
-	InventoryComponent->DropWeapon();
+	InventoryComponent->DropCurrentlyEquippedWeapon();
 }
 
 void ATPCharacter::StartSprinting()

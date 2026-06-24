@@ -1,11 +1,11 @@
 #pragma once
+
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "ThirdPersonLocoDemo/Enums/TPCWeaponEnums.h"
 #include "WeaponData.generated.h"
 
-enum class ETPCWeaponType : uint8;
-enum class ETPCWeaponAttackType : uint8;
-enum class ETPCWeaponFireMode : uint8;
+class AWeapon;
 
 UCLASS(BlueprintType)
 class THIRDPERSONLOCODEMO_API UWeaponData : public UPrimaryDataAsset
@@ -13,34 +13,21 @@ class THIRDPERSONLOCODEMO_API UWeaponData : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
+	EWeaponID WeaponID = EWeaponID::None;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
 	FText WeaponName;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UTexture2D* WeaponIcon;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
+	FName WeaponEquippedSocketName;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float Damage = 20.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
+	FName WeaponHolsterSocketName;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float FireRate = 0.1f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	int32 AmmoClipSize = 30;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	int32 MaxAmmoCapacity = 240;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	ETPCWeaponFireMode FireMode;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	ETPCWeaponAttackType AttackType;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	ETPCWeaponType WeaponType;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<AActor> ProjectileClass;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
+	EWeaponCategory WeaponCategory;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
+	TSubclassOf<AWeapon> WeaponClass;
 };

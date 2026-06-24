@@ -20,18 +20,18 @@ public:
 	AWeapon();
 	UWeaponData* GetWeaponData() const;
 	void SetWeaponState(ETPCWeaponState NewWeaponState);
-	
+
 protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Weapon")
-	USkeletalMeshComponent* WeaponMesh;
+	UStaticMeshComponent* WeaponMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Interaction")
 	UInteractableComponent* InteractableComponent;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Weapon")
-	UWeaponData* WeaponData;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Weapon", meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UWeaponData> WeaponData;
 
 private:
 	UFUNCTION()

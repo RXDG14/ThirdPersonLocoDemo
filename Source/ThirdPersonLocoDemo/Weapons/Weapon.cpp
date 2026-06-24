@@ -9,7 +9,7 @@ AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
+	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);
 	
 	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableComponent"));
@@ -71,7 +71,13 @@ void AWeapon::SetWeaponState(ETPCWeaponState NewWeaponState)
 			WeaponMesh->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
 			InteractableComponent->SetInteractionMode(true);
 			break;
-
+		
+		case ETPCWeaponState::Holstered:
+			WeaponMesh->SetSimulatePhysics(false);
+			WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			InteractableComponent->SetInteractionMode(false);
+		break;
+		
 		default:
 			break;
 	}

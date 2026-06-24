@@ -8,19 +8,61 @@ void UWidgetWeaponWheelButton::NativeConstruct()
 
 	if (WeaponButton)
 	{
-		WeaponButton->OnClicked.AddDynamic(this, &UWidgetWeaponWheelButton::OnButtonClicked);
+		WeaponButton->OnHovered.AddDynamic(this, &UWidgetWeaponWheelButton::OnButtonHovered);
+		WeaponButton->OnUnhovered.AddDynamic(this, &UWidgetWeaponWheelButton::OnButtonUnHovered);
 	}
 }
 
 void UWidgetWeaponWheelButton::SetWeaponButtonText(const FText& NewText)
 {
+	WeaponButtonOriginalText = NewText;
 	if (WeaponButtonText)
 	{
 		WeaponButtonText->SetText(NewText);
 	}
 }
 
-void UWidgetWeaponWheelButton::OnButtonClicked()
+void UWidgetWeaponWheelButton::SetWeaponButtonWeapon(AWeapon* InWeapon)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Weapon Button Clicked"));
+	if (InWeapon)
+	{
+		Weapon = InWeapon;
+	}
+}
+
+void UWidgetWeaponWheelButton::SetWeaponButtonSelection(bool bSetAsSelected)
+{
+	if (!WeaponButtonText)
+		return;
+
+	if (bSetAsSelected)
+	{
+		SetWeaponButtonText(FText::Format(FText::FromString(TEXT("--> {0}")),WeaponButtonText->GetText()));
+		bIsSelected = true;	
+	}
+	else
+	{
+		SetWeaponButtonText(WeaponButtonOriginalText);
+		bIsSelected = false;
+	}
+}
+
+bool UWidgetWeaponWheelButton::GetIsSelected()
+{
+	return bIsSelected;
+}
+
+AWeapon* UWidgetWeaponWheelButton::GetWeaponButtonWeapon()
+{
+	return Weapon;
+}
+
+void UWidgetWeaponWheelButton::OnButtonHovered()
+{
+	OnWeaponButtonHovered.Broadcast(this);
+}
+
+void UWidgetWeaponWheelButton::OnButtonUnHovered()
+{
+	OnWeaponButtonUnHovered.Broadcast(this);
 }
