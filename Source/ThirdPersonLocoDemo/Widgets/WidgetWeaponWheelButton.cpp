@@ -37,15 +37,19 @@ void UWidgetWeaponWheelButton::SetWeaponButtonSelection(bool bSetAsSelected)
 
 	if (bSetAsSelected)
 	{
-		SetWeaponButtonText(FText::Format(FText::FromString(TEXT("--> {0}")),WeaponButtonText->GetText()));
+		if (bIsSelected)
+			return;
+		
+		WeaponButtonText->SetText(FText::Format(FText::FromString(TEXT("--> {0}")), WeaponButtonOriginalText));
 		bIsSelected = true;	
 	}
 	else
 	{
-		SetWeaponButtonText(WeaponButtonOriginalText);
+		WeaponButtonText->SetText(WeaponButtonOriginalText);
 		bIsSelected = false;
 	}
 }
+
 
 bool UWidgetWeaponWheelButton::GetIsSelected()
 {

@@ -20,6 +20,7 @@ public:
 	AWeapon();
 	UWeaponData* GetWeaponData() const;
 	void SetWeaponState(ETPCWeaponState NewWeaponState);
+	ETPCWeaponState GetWeaponState();
 
 protected:
 	virtual void BeginPlay() override;

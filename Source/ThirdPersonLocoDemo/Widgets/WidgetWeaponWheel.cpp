@@ -40,6 +40,7 @@ void UWidgetWeaponWheel::RefreshWeaponsList()
 
 	WeaponsList->ClearChildren();
 	SelectedWeaponButton = nullptr;
+	DefaultWeaponButton = nullptr;
 	
 	const TArray<AWeapon*>& Weapons = InventoryComponent->GetWeaponsInventory();
 	for (AWeapon* Weapon : Weapons)
@@ -53,6 +54,13 @@ void UWidgetWeaponWheel::RefreshWeaponsList()
 
 		WeaponButton->SetWeaponButtonText(Weapon->GetWeaponData()->WeaponName);
 		WeaponButton->SetWeaponButtonWeapon(Weapon);
+
+		if (Weapon->GetWeaponState() == ETPCWeaponState::Equipped)
+		{
+			WeaponButton->SetWeaponButtonSelection(true);
+			SelectedWeaponButton = WeaponButton;
+			DefaultWeaponButton = WeaponButton;
+		}
 
 		WeaponButton->OnWeaponButtonHovered.AddUObject(this, &UWidgetWeaponWheel::OnWeaponButtonHovered);
 		WeaponButton->OnWeaponButtonUnHovered.AddUObject(this, &UWidgetWeaponWheel::OnWeaponButtonUnHovered);
@@ -78,6 +86,7 @@ void UWidgetWeaponWheel::OnDropAllWeaponsButtonClicked()
 	if (InventoryComponent)
 	{
 		InventoryComponent->DropAllWeapons();
+		RefreshWeaponsList();
 	}
 }
 
@@ -85,14 +94,14 @@ void UWidgetWeaponWheel::OnWeaponButtonHovered(UWidgetWeaponWheelButton* WeaponB
 {
 	if (!WeaponButton)
 		return;
-
+	
 	if (SelectedWeaponButton && SelectedWeaponButton != WeaponButton)
 	{
 		SelectedWeaponButton->SetWeaponButtonSelection(false);
 	}
 
 	SelectedWeaponButton = WeaponButton;
-	SelectedWeaponButton->SetWeaponButtonSelection(true);
+	WeaponButton->SetWeaponButtonSelection(true);
 }
 
 void UWidgetWeaponWheel::OnWeaponButtonUnHovered(class UWidgetWeaponWheelButton* WeaponButton)
@@ -100,9 +109,21 @@ void UWidgetWeaponWheel::OnWeaponButtonUnHovered(class UWidgetWeaponWheelButton*
 	if (!WeaponButton)
 		return;
 
-	if (WeaponButton == SelectedWeaponButton)
+	if (WeaponButton != SelectedWeaponButton)
+		return;
+	
+	if (WeaponButton == DefaultWeaponButton)
+		return;
+
+	WeaponButton->SetWeaponButtonSelection(false);
+
+	if (DefaultWeaponButton)
 	{
-		WeaponButton->SetWeaponButtonSelection(false);
+		DefaultWeaponButton->SetWeaponButtonSelection(true);
+		SelectedWeaponButton = DefaultWeaponButton;
+	}
+	else
+	{
 		SelectedWeaponButton = nullptr;
 	}
 }

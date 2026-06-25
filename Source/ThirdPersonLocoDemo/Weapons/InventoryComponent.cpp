@@ -41,7 +41,14 @@ void UInventoryComponent::DropCurrentlyEquippedWeapon()
 
 void UInventoryComponent::DropAllWeapons()
 {
-	for (AWeapon* InventoryWeapon : WeaponsInventory) //  check if weapon already exists in inv
+	TArray<AWeapon*> WeaponsToDrop = WeaponsInventory;
+	
+	if (IsValid(CurrentlyEquippedWeapon))
+	{
+		WeaponsToDrop.AddUnique(CurrentlyEquippedWeapon);
+	}
+
+	for (AWeapon* InventoryWeapon : WeaponsToDrop)
 	{
 		if (!IsValid(InventoryWeapon))
 			continue;
@@ -54,6 +61,9 @@ void UInventoryComponent::EquipWeaponFromInventory(AWeapon* Weapon)
 {
 	if (HasWeaponEquipped())
 	{
+		if (CurrentlyEquippedWeapon == Weapon)
+			return;
+		
 		HolsterWeapon(CurrentlyEquippedWeapon);
 		EquipWeapon(Weapon);
 	}
@@ -73,6 +83,9 @@ void UInventoryComponent::AddWeaponToInventory(AWeapon* NewWeapon, bool bShouldH
 	for (AWeapon* InventoryWeapon : WeaponsInventory) //  check if weapon already exists in inv
 	{
 		if (!IsValid(InventoryWeapon) || !IsValid(InventoryWeapon->GetWeaponData()))
+			continue;
+
+		if (InventoryWeapon == NewWeapon)
 			continue;
 
 		UWeaponData* InventoryWeaponData = InventoryWeapon->GetWeaponData();

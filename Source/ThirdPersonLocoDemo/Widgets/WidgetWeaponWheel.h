@@ -33,6 +33,9 @@ private:
 	TObjectPtr<UWidgetWeaponWheelButton> SelectedWeaponButton;
 	
 	UPROPERTY()
+	TObjectPtr<UWidgetWeaponWheelButton> DefaultWeaponButton;
+	
+	UPROPERTY()
 	TObjectPtr<class UInventoryComponent> InventoryComponent;
 
 	UFUNCTION()

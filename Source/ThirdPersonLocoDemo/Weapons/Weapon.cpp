@@ -84,3 +84,8 @@ void AWeapon::SetWeaponState(ETPCWeaponState NewWeaponState)
 
 	CurrentWeaponState = NewWeaponState;
 }
+
+ETPCWeaponState AWeapon::GetWeaponState()
+{
+	return CurrentWeaponState;
+}
