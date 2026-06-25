@@ -29,15 +29,18 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void InitializeCamera(USpringArmComponent* InSpringArm);
-	void SetCameraType(ETPCCameraType NewCameraType);
+	
 	void ToggleCameraType();
-	void SetCrouched(bool bNewCrouched);
-
-	ETPCCameraType GetCurrentCameraType() const { return CurrentCameraType; }
-
+	void SetCrouchedCameraMode(bool bNewCrouched);
+	void SetAimCameraMode(bool bNewAim);
+	
+	ETPCCameraType GetPreviousCameraType() const { return PreviousCameraType; }
 private:
 	UPROPERTY()
 	USpringArmComponent* SpringArmRef = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category="Camera_Presets")
+	FTPCCameraSettings AimCamera = {50, {0,40,50}};
 
 	UPROPERTY(EditDefaultsOnly, Category="Camera_Presets")
 	FTPCCameraSettings CloseCamera = {100, {0,40,50}};
@@ -54,10 +57,16 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="Camera_Attributes")
 	float CameraInterpSpeed = 3.0f; // higher = snappier
 
+	ETPCCameraType PreviousCameraType;
 	ETPCCameraType CurrentCameraType = ETPCCameraType::Far;
 	FVector DesiredSocketOffset = FVector::ZeroVector;
 	float DesiredCameraArmLength = 0.f;
-	bool bIsTpcCrouched = false;
+
+	bool bIsInCrouchedCameraMode = false;
+	bool bIsInAimCameraMode = false;
 
 	void UpdateCameraPosition(float DeltaTime);
+	ETPCCameraType GetCurrentCameraType() const { return CurrentCameraType; }
+	void SetCameraType(ETPCCameraType NewCameraType);
+	bool GetAimCameraMode();
 };

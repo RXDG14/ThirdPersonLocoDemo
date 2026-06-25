@@ -17,6 +17,9 @@ public:
 	EWeaponID WeaponID = EWeaponID::None;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
+	EWeaponType WeaponType = EWeaponType::None;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
 	FText WeaponName;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
@@ -24,9 +27,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
 	FName WeaponHolsterSocketName;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
-	EWeaponCategory WeaponCategory;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
 	TSubclassOf<AWeapon> WeaponClass;

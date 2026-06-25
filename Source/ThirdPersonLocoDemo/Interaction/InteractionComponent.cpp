@@ -70,3 +70,8 @@ void UInteractionComponent::RemoveInteractable(UInteractableComponent* Interacta
 	InteractableComponents.RemoveSingleSwap(InteractableToRemove);
 	CurrentInteractable = GetCurrentInteractable();
 }
+
+bool UInteractionComponent::GetCanInteract()
+{
+	return InteractableComponents.Num() < 1 ? false : true;
+}

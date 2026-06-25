@@ -15,6 +15,7 @@ public:
 	void Interact();
 	void AddInteractable(UInteractableComponent* InteractableToAdd);
 	void RemoveInteractable(UInteractableComponent* InteractableToRemove);
+	bool GetCanInteract();
 	
 private:
 	UInteractableComponent* GetCurrentInteractable() const;

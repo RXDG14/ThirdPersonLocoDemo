@@ -1,6 +1,7 @@
 #include "InventoryComponent.h"
 #include "Weapon.h"
 #include "WeaponData.h"
+#include "ThirdPersonLocoDemo/Enums/TPCPlayerEnums.h"
 #include "ThirdPersonLocoDemo/Enums/TPCWeaponEnums.h"
 #include "ThirdPersonLocoDemo/Player/TPCharacter.h"
 
@@ -37,6 +38,14 @@ void UInventoryComponent::DropCurrentlyEquippedWeapon()
 		return;
 
 	UnEquipWeapon(CurrentlyEquippedWeapon, false);
+}
+
+void UInventoryComponent::HolsterCurrentlyEquippedWeapon()
+{
+	if (!HasWeaponEquipped())
+		return;
+
+	HolsterWeapon(CurrentlyEquippedWeapon);
 }
 
 void UInventoryComponent::DropAllWeapons()
@@ -128,6 +137,7 @@ void UInventoryComponent::EquipWeapon(AWeapon* Weapon)
 	if (Weapon->GetWeaponData())
 	{
 		Weapon->AttachToComponent(Player->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,Weapon->GetWeaponData()->WeaponEquippedSocketName);
+		SetPlayerAnimationState(Weapon->GetWeaponData()->WeaponType);
 	}
 	CurrentlyEquippedWeapon = Weapon;
 }
@@ -148,7 +158,8 @@ void UInventoryComponent::UnEquipWeapon(AWeapon* Weapon, bool bShouldHolster)
 		Weapon->SetWeaponState(ETPCWeaponState::UnEquipped);
 		Weapon->SetOwner(nullptr);
 		RemoveWeaponFromInventory(Weapon);
-		CurrentlyEquippedWeapon = nullptr;	
+		CurrentlyEquippedWeapon = nullptr;
+		SetPlayerAnimationState(EWeaponType::None);
 	}
 }
 
@@ -157,21 +168,61 @@ void UInventoryComponent::HolsterWeapon(AWeapon* Weapon)
 	ATPCharacter* Player = Cast<ATPCharacter>(GetOwner());
 	if (!IsValid(Player) || !Player->GetMesh())
 		return;
-
+	
+	if (HasWeaponEquipped())
+	{
+		if (CurrentlyEquippedWeapon == Weapon)
+		{
+			CurrentlyEquippedWeapon = nullptr;
+			SetPlayerAnimationState(EWeaponType::None);
+		}
+	}
+	
 	Weapon->SetOwner(Player);
 	Weapon->SetWeaponState(ETPCWeaponState::Holstered);
 	if (Weapon->GetWeaponData())
 	{
 		Weapon->AttachToComponent(Player->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,Weapon->GetWeaponData()->WeaponHolsterSocketName);
 	}
+}
+
+void UInventoryComponent::SetPlayerAnimationState(EWeaponType WeaponType)
+{
+	ATPCharacter* Player = Cast<ATPCharacter>(GetOwner());
+	if (!IsValid(Player) || !Player->GetMesh())
+		return;
 	
-	if (HasWeaponEquipped() && CurrentlyEquippedWeapon == Weapon)
-	{	
-		CurrentlyEquippedWeapon = nullptr;
+	switch (WeaponType)
+	{
+	case EWeaponType::None:
+		Player->SetTPCAnimationState(ETPCAnimationState::Unarmed);
+		break;
+	case EWeaponType::Pistol:
+		Player->SetTPCAnimationState(ETPCAnimationState::Pistol);
+		break;
+	case EWeaponType::Rifle:
+		Player->SetTPCAnimationState(ETPCAnimationState::Rifle);
+		break;
+	default:
+		break;
 	}
 }
 
 bool UInventoryComponent::HasWeaponEquipped() const
 {
 	return CurrentlyEquippedWeapon != nullptr;
+}
+
+EWeaponType UInventoryComponent::GetCurrentlyEquippedWeaponType()
+{
+	if (HasWeaponEquipped() && CurrentlyEquippedWeapon)
+	{
+		auto* CurrentlyEquippedWeaponData = CurrentlyEquippedWeapon->GetWeaponData();
+		if (!CurrentlyEquippedWeaponData)
+			return EWeaponType::None;
+
+		return CurrentlyEquippedWeaponData->WeaponType;
+	}
+
+	return EWeaponType::None;
 }

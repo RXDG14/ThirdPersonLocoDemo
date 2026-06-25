@@ -22,10 +22,15 @@ void UCameraHandlerComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 void UCameraHandlerComponent::SetCameraType(ETPCCameraType NewCameraType)
 {
-	CurrentCameraType = NewCameraType;
-
+	PreviousCameraType = CurrentCameraType;
+	
 	switch (NewCameraType)
 	{
+	case ETPCCameraType::Aim:
+		DesiredCameraArmLength = AimCamera.ArmLength;
+		DesiredSocketOffset = AimCamera.SocketOffset;
+		break;
+		
 	case ETPCCameraType::Close:
 		DesiredCameraArmLength = CloseCamera.ArmLength;
 		DesiredSocketOffset = CloseCamera.SocketOffset;
@@ -49,10 +54,17 @@ void UCameraHandlerComponent::SetCameraType(ETPCCameraType NewCameraType)
 	default:
 		break;
 	}
+
+	CurrentCameraType = NewCameraType;
 }
 
 void UCameraHandlerComponent::ToggleCameraType()
 {
+	if (GetAimCameraMode())
+		return;
+
+	PreviousCameraType = CurrentCameraType;
+	
 	switch (CurrentCameraType)
 	{
 	case ETPCCameraType::Close:
@@ -74,9 +86,22 @@ void UCameraHandlerComponent::ToggleCameraType()
 	}
 }
 
-void UCameraHandlerComponent::SetCrouched(bool bNewCrouched)
+void UCameraHandlerComponent::SetCrouchedCameraMode(bool bNewCrouched)
 {
-	bIsTpcCrouched = bNewCrouched;
+	bIsInCrouchedCameraMode = bNewCrouched;
+}
+
+void UCameraHandlerComponent::SetAimCameraMode(bool bNewAim)
+{
+	bIsInAimCameraMode = bNewAim;
+	if (bNewAim)
+	{
+		SetCameraType(ETPCCameraType::Aim);
+	}
+	else
+	{
+		SetCameraType(PreviousCameraType);
+	}
 }
 
 void UCameraHandlerComponent::UpdateCameraPosition(float DeltaTime)
@@ -86,8 +111,13 @@ void UCameraHandlerComponent::UpdateCameraPosition(float DeltaTime)
 		return;
 	}
 
-	DesiredSocketOffset.Z = bIsTpcCrouched ? 0.f : 50.f;
+	DesiredSocketOffset.Z = bIsInCrouchedCameraMode ? 0.f : 50.f;
 
 	SpringArmRef->TargetArmLength = FMath::FInterpTo(SpringArmRef->TargetArmLength, DesiredCameraArmLength, DeltaTime, CameraInterpSpeed);
 	SpringArmRef->SocketOffset = FMath::VInterpTo(SpringArmRef->SocketOffset, DesiredSocketOffset, DeltaTime, CameraInterpSpeed);
+}
+
+bool UCameraHandlerComponent::GetAimCameraMode()
+{
+	return bIsInAimCameraMode;
 }

@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "InventoryComponent.generated.h"
 
+enum class EWeaponType : uint8;
 class AWeapon;
 
 UCLASS()
@@ -16,10 +17,13 @@ public:
 
 	void PickupWeapon(AWeapon* Weapon);
 	void DropCurrentlyEquippedWeapon();
+	void HolsterCurrentlyEquippedWeapon();
 	void DropAllWeapons();
 	void EquipWeaponFromInventory(AWeapon* Weapon);
 	const TArray<AWeapon*>& GetWeaponsInventory() const { return WeaponsInventory; }
-
+	bool HasWeaponEquipped() const;
+	EWeaponType GetCurrentlyEquippedWeaponType();
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -39,5 +43,5 @@ private:
 	void EquipWeapon(AWeapon* Weapon);
 	void UnEquipWeapon(AWeapon* Weapon, bool bShouldHolster);
 	void HolsterWeapon(AWeapon* Weapon);
-	bool HasWeaponEquipped() const;
+	void SetPlayerAnimationState(EWeaponType WeaponType);
 };

@@ -21,11 +21,7 @@ ATPCharacter::ATPCharacter()
 	bUseControllerRotationYaw = false;
 	
 	TrajectoryComponent = CreateDefaultSubobject<UCharacterTrajectoryComponent>(TEXT("CharacterTrajectoryComponent"));
-
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
-	//InventoryComponent->OnWeaponEquipped.BindUObject(this,&ATPCharacter::OnWeaponEquipped);
-	//InventoryComponent->OnWeaponUnEquipped.BindUObject(this,&ATPCharacter::OnWeaponUnEquipped);
-	
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>(TEXT("InteractionComponent"));
 	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
@@ -46,9 +42,8 @@ void ATPCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	SetTPCMovementMode(ETPCPlayerEnums::Walk);
+	SetTPCMovementMode(ETPCPlayerMovementMode::Walk);
 	SetTPCMotionMatchingType(ETPCMotionMatchingType::With_OrientRotationToMovement);
-	CameraHandler->SetCameraType(ETPCCameraType::Far);
 }
 
 void ATPCharacter::Tick(float DeltaTime)
@@ -73,6 +68,17 @@ void ATPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		EIC->BindAction(IA_Sprint, ETriggerEvent::Started, this, &ATPCharacter::StartSprinting);
 		EIC->BindAction(IA_Sprint, ETriggerEvent::Completed, this, &ATPCharacter::StopSprinting);
 		EIC->BindAction(IA_Drop, ETriggerEvent::Started, this, &ATPCharacter::DropWeapon);
+		EIC->BindAction(IA_Holster, ETriggerEvent::Started, this, &ATPCharacter::HolsterWeapon);
+		EIC->BindAction(IA_Aim, ETriggerEvent::Started, this, &ATPCharacter::StartAiming);
+		EIC->BindAction(IA_Aim, ETriggerEvent::Completed, this, &ATPCharacter::StopAiming);
+	}
+}
+
+void ATPCharacter::Notify_OnWeaponHolstered()
+{
+	if (InventoryComponent)
+	{
+		InventoryComponent->HolsterCurrentlyEquippedWeapon();
 	}
 }
 
@@ -100,7 +106,14 @@ void ATPCharacter::Look(const FInputActionValue& Value)
 
 void ATPCharacter::Interact(const FInputActionValue& Value)
 {
-	InteractionComponent->Interact();
+	if (InteractionComponent->GetCanInteract())
+	{
+		if (AM_Pickup)
+		{
+			PlayAnimationMontage(AM_Pickup);
+		}
+		InteractionComponent->Interact();
+	}
 }
 
 void ATPCharacter::DropWeapon(const FInputActionValue& Value)
@@ -108,29 +121,40 @@ void ATPCharacter::DropWeapon(const FInputActionValue& Value)
 	InventoryComponent->DropCurrentlyEquippedWeapon();
 }
 
+void ATPCharacter::HolsterWeapon(const FInputActionValue& Value)
+{
+	if (AM_Holster)
+	{
+		PlayAnimationMontage(AM_Holster);
+	}
+}
+
 void ATPCharacter::StartSprinting()
 {
-	SetTPCMovementMode(ETPCPlayerEnums::Sprint);
+	SetTPCMovementMode(ETPCPlayerMovementMode::Sprint);
 }
 
 void ATPCharacter::StopSprinting()
 {
-	SetTPCMovementMode(ETPCPlayerEnums::Jog);
+	SetTPCMovementMode(ETPCPlayerMovementMode::Jog);
 }
 
 void ATPCharacter::ToggleCrouch()
 {
-	SetTPCMovementMode(ETPCPlayerEnums::Crouch);
+	SetTPCMovementMode(ETPCPlayerMovementMode::Crouch);
 }
 
 void ATPCharacter::ToggleWalkJog()
 {
-	SetTPCMovementMode(CurrentMovementMode == ETPCPlayerEnums::Walk ? ETPCPlayerEnums::Jog : ETPCPlayerEnums::Walk);
+	SetTPCMovementMode(CurrentMovementMode == ETPCPlayerMovementMode::Walk ? ETPCPlayerMovementMode::Jog : ETPCPlayerMovementMode::Walk);
 }
 
 void ATPCharacter::ToggleMotionMatchingType()
 {
-	SetTPCMotionMatchingType(CurrentMotionMatchingType == ETPCMotionMatchingType::With_OrientRotationToMovement ? ETPCMotionMatchingType::With_ControllerDesiredRotation : ETPCMotionMatchingType::With_OrientRotationToMovement);
+	if (!GetIsAiming())
+	{
+		SetTPCMotionMatchingType(CurrentMotionMatchingType == ETPCMotionMatchingType::With_OrientRotationToMovement ? ETPCMotionMatchingType::With_ControllerDesiredRotation : ETPCMotionMatchingType::With_OrientRotationToMovement);
+	}
 }
 
 void ATPCharacter::ToggleCameraType()
@@ -138,34 +162,34 @@ void ATPCharacter::ToggleCameraType()
 	CameraHandler->ToggleCameraType();
 }
 
-void ATPCharacter::SetTPCMovementMode(ETPCPlayerEnums NewMovementMode)
+void ATPCharacter::SetTPCMovementMode(ETPCPlayerMovementMode NewMovementMode)
 {
-	if (NewMovementMode == ETPCPlayerEnums::Walk)
+	if (NewMovementMode == ETPCPlayerMovementMode::Walk)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MovementSettings.WalkSpeed;
 		CurrentMovementMode = NewMovementMode;
 	}
 
-	if (NewMovementMode == ETPCPlayerEnums::Jog)
+	if (NewMovementMode == ETPCPlayerMovementMode::Jog)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MovementSettings.JogSpeed;
 		CurrentMovementMode = NewMovementMode;
 		bIsTPCCrouched = false;
 	}
 
-	if (NewMovementMode == ETPCPlayerEnums::Sprint)
+	if (NewMovementMode == ETPCPlayerMovementMode::Sprint)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MovementSettings.SprintSpeed;
 		CurrentMovementMode = NewMovementMode;
 		bIsTPCCrouched = false;
 	}
 
-	if (NewMovementMode == ETPCPlayerEnums::Crouch)
+	if (NewMovementMode == ETPCPlayerMovementMode::Crouch)
 	{
 		if (bIsTPCCrouched)
 		{
 			bIsTPCCrouched = false;
-			SetTPCMovementMode(ETPCPlayerEnums::Walk);
+			SetTPCMovementMode(ETPCPlayerMovementMode::Walk);
 		}
 		else
 		{
@@ -175,7 +199,12 @@ void ATPCharacter::SetTPCMovementMode(ETPCPlayerEnums NewMovementMode)
 		}
 	}
 
-	CameraHandler->SetCrouched(bIsTPCCrouched);
+	CameraHandler->SetCrouchedCameraMode(bIsTPCCrouched);
+}
+
+void ATPCharacter::SetTPCAnimationState(ETPCAnimationState NewAnimationState)
+{
+	PlayerCurrentAnimationState = NewAnimationState;
 }
 
 void ATPCharacter::SetTPCMotionMatchingType(ETPCMotionMatchingType NewMotionMatchingType)
@@ -195,12 +224,49 @@ void ATPCharacter::SetTPCMotionMatchingType(ETPCMotionMatchingType NewMotionMatc
 	}
 }
 
-void ATPCharacter::OnWeaponEquipped(class AWeapon* Weapon)
+void ATPCharacter::PlayAnimationMontage(UAnimMontage* MontageToPlay)
 {
-	
+	if (!GetMesh() || !MontageToPlay)
+		return;
+
+	auto* AnimInstance = GetMesh()->GetAnimInstance();
+	if (!AnimInstance)
+		return;
+
+	AnimInstance->Montage_Play(MontageToPlay);
 }
 
-void ATPCharacter::OnWeaponUnEquipped()
+void ATPCharacter::StartAiming()
 {
-	
+	bIsAiming = true;
+	CameraHandler->SetAimCameraMode(true);
+	SetTPCMotionMatchingType(ETPCMotionMatchingType::With_ControllerDesiredRotation);
+	CurrentlyEquippedWeaponType = GetCurrentlyEquippedWeaponTypeFromInv();
+}
+
+void ATPCharacter::StopAiming()
+{
+	bIsAiming = false;
+	CameraHandler->SetAimCameraMode(false);
+	SetTPCMotionMatchingType(ETPCMotionMatchingType::With_OrientRotationToMovement);
+}
+
+bool ATPCharacter::GetHasWeaponInHand()
+{
+	return InventoryComponent->HasWeaponEquipped();
+}
+
+bool ATPCharacter::GetIsAiming()
+{
+	return bIsAiming;
+}
+
+EWeaponType ATPCharacter::GetCurrentlyEquippedWeaponTypeFromInv()
+{
+	if (InventoryComponent)
+	{
+		return InventoryComponent->GetCurrentlyEquippedWeaponType();
+	}
+
+	return EWeaponType::None;
 }
