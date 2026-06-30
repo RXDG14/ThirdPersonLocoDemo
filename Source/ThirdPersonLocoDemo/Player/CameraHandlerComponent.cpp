@@ -6,9 +6,10 @@ UCameraHandlerComponent::UCameraHandlerComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UCameraHandlerComponent::InitializeCamera(USpringArmComponent* InSpringArm)
+void UCameraHandlerComponent::InitializeCamera(USpringArmComponent* InSpringArm, UCameraComponent* InCamera)
 {
 	SpringArmRef = InSpringArm;
+	CameraRef = InCamera;
 	
 	SetCameraType(CurrentCameraType);
 }
@@ -30,7 +31,6 @@ void UCameraHandlerComponent::SetCameraType(ETPCCameraType NewCameraType)
 		DesiredCameraArmLength = AimCamera.ArmLength;
 		DesiredSocketOffset = AimCamera.SocketOffset;
 		break;
-		
 	case ETPCCameraType::Close:
 		DesiredCameraArmLength = CloseCamera.ArmLength;
 		DesiredSocketOffset = CloseCamera.SocketOffset;
@@ -111,7 +111,21 @@ void UCameraHandlerComponent::UpdateCameraPosition(float DeltaTime)
 		return;
 	}
 
-	DesiredSocketOffset.Z = bIsInCrouchedCameraMode ? 0.f : 50.f;
+	if (bIsInCrouchedCameraMode)
+	{
+		if (bIsInAimCameraMode)
+		{
+			DesiredSocketOffset.Z = 30.f;
+		}
+		else
+		{
+			DesiredSocketOffset.Z = 0.f;
+		}
+	}
+	else
+	{
+		DesiredSocketOffset.Z = 50.f;
+	}
 
 	SpringArmRef->TargetArmLength = FMath::FInterpTo(SpringArmRef->TargetArmLength, DesiredCameraArmLength, DeltaTime, CameraInterpSpeed);
 	SpringArmRef->SocketOffset = FMath::VInterpTo(SpringArmRef->SocketOffset, DesiredSocketOffset, DeltaTime, CameraInterpSpeed);

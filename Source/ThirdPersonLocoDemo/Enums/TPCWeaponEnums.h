@@ -29,3 +29,11 @@ enum class EWeaponID : uint8
 	Throwable_A     = 7  UMETA(DisplayName = "Throwable_A"),
 	Throwable_B     = 8  UMETA(DisplayName = "Throwable_B")
 };
+
+UENUM(BlueprintType)
+enum class EWeaponCurrentActiveSocket : uint8
+{
+	Holster        UMETA(DisplayName = "Holster"),
+	Equipped       UMETA(DisplayName = "Equipped"),
+	Aim            UMETA(DisplayName = "Aim")
+};

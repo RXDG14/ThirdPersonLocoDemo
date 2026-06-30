@@ -174,7 +174,6 @@ void UInventoryComponent::HolsterWeapon(AWeapon* Weapon)
 		if (CurrentlyEquippedWeapon == Weapon)
 		{
 			CurrentlyEquippedWeapon = nullptr;
-			SetPlayerAnimationState(EWeaponType::None);
 		}
 	}
 	
@@ -225,4 +224,19 @@ EWeaponType UInventoryComponent::GetCurrentlyEquippedWeaponType()
 	}
 
 	return EWeaponType::None;
+}
+
+void UInventoryComponent::ChangeWeaponSocket(FName NewWeaponSocketName)
+{
+	if (!HasWeaponEquipped() && CurrentlyEquippedWeapon)
+		return;
+
+	ATPCharacter* Player = Cast<ATPCharacter>(GetOwner());
+	if (!IsValid(Player) || !Player->GetMesh())
+		return;
+
+	if (CurrentlyEquippedWeapon->GetWeaponData())
+	{
+		CurrentlyEquippedWeapon->AttachToComponent(Player->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,NewWeaponSocketName);
+	}
 }

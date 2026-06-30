@@ -5,6 +5,7 @@
 #include "../Interaction/Interactable.h"
 #include "Weapon.generated.h"
 
+enum class EWeaponCurrentActiveSocket : uint8;
 enum class ETPCWeaponState : uint8;
 class UWeaponData;
 class USkeletalMeshComponent;
@@ -21,7 +22,7 @@ public:
 	UWeaponData* GetWeaponData() const;
 	void SetWeaponState(ETPCWeaponState NewWeaponState);
 	ETPCWeaponState GetWeaponState();
-
+	
 protected:
 	virtual void BeginPlay() override;
 

@@ -27,7 +27,10 @@ struct FTPCMovementSettings
 	float SprintSpeed = 600;
 
 	UPROPERTY(EditDefaultsOnly)
-	float LookSpeed = 0.3f; // slower is better for mouse look
+	float LookSpeed = 0.3f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float LookSpeedAiming = 0.15f; // slower is better for mouse look
 };
 
 UCLASS()
@@ -127,9 +130,12 @@ private:
 	// Weapons____________________________________________________________
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Attributes_Weapon", meta = (AllowPrivateAccess = "true"))
 	bool bIsAiming = false;
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Attributes_Weapon", meta = (AllowPrivateAccess = "true"))
 	EWeaponType CurrentlyEquippedWeaponType;
+
+	UFUNCTION(BlueprintCallable, meta = (AllowPrivateAccess = "true"))
+	bool GetHasWeaponInHand();
 	
 	// Attributes_Movement____________________________________________________________
 	UPROPERTY(EditDefaultsOnly, Category="Attributes_Movement")
@@ -141,7 +147,6 @@ private:
 
 	ETPCPlayerMovementMode CurrentMovementMode;
 	ETPCMotionMatchingType CurrentMotionMatchingType;
-
 	////////////////////////////////////////////////////////////////////////////////
 	
 	void MovePlayer(const FInputActionValue& Value);
@@ -160,7 +165,6 @@ private:
 	void PlayAnimationMontage(UAnimMontage* MontageToPlay);
 	void StartAiming();
 	void StopAiming();
-	bool GetHasWeaponInHand();
 	bool GetIsAiming();
 	EWeaponType GetCurrentlyEquippedWeaponTypeFromInv();
 };

@@ -26,6 +26,9 @@ public:
 	FName WeaponEquippedSocketName;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
+	FName WeaponAimSocketName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
 	FName WeaponHolsterSocketName;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")

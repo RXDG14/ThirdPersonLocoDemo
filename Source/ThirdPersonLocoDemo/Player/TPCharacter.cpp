@@ -29,10 +29,11 @@ ATPCharacter::ATPCharacter()
 	SpringArm->bUsePawnControlRotation = true;
 
 	CameraHandler = CreateDefaultSubobject<UCameraHandlerComponent>(TEXT("CameraHandler"));
-	CameraHandler->InitializeCamera(SpringArm);
 	
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	PlayerCamera->SetupAttachment(SpringArm);
+
+	CameraHandler->InitializeCamera(SpringArm,PlayerCamera);
 
 	BackPackMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BackPack"));
 	BackPackMesh->SetupAttachment(GetMesh(), TEXT("BagpackSocket"));
@@ -100,8 +101,16 @@ void ATPCharacter::Look(const FInputActionValue& Value)
 {
 	FVector2d LookAxisVector = Value.Get<FVector2D>();
 
-	AddControllerPitchInput(LookAxisVector.Y * MovementSettings.LookSpeed);
-	AddControllerYawInput(LookAxisVector.X * MovementSettings.LookSpeed);
+	if (GetIsAiming())
+	{
+		AddControllerPitchInput(LookAxisVector.Y * MovementSettings.LookSpeedAiming);
+		AddControllerYawInput(LookAxisVector.X * MovementSettings.LookSpeedAiming);
+	}
+	else
+	{
+		AddControllerPitchInput(LookAxisVector.Y * MovementSettings.LookSpeed);
+		AddControllerYawInput(LookAxisVector.X * MovementSettings.LookSpeed);
+	}
 }
 
 void ATPCharacter::Interact(const FInputActionValue& Value)
@@ -123,7 +132,8 @@ void ATPCharacter::DropWeapon(const FInputActionValue& Value)
 
 void ATPCharacter::HolsterWeapon(const FInputActionValue& Value)
 {
-	if (AM_Holster)
+	SetTPCAnimationState(ETPCAnimationState::Unarmed);
+	if (AM_Holster && GetHasWeaponInHand())
 	{
 		PlayAnimationMontage(AM_Holster);
 	}
@@ -242,6 +252,13 @@ void ATPCharacter::StartAiming()
 	CameraHandler->SetAimCameraMode(true);
 	SetTPCMotionMatchingType(ETPCMotionMatchingType::With_ControllerDesiredRotation);
 	CurrentlyEquippedWeaponType = GetCurrentlyEquippedWeaponTypeFromInv();
+	if (GetHasWeaponInHand() && InventoryComponent)
+	{
+		if (InventoryComponent->GetCurrentlyEquippedWeaponType() == EWeaponType::Rifle)
+		{
+			InventoryComponent->ChangeWeaponSocket("WeaponAimSocketRifle");
+		}
+	}
 }
 
 void ATPCharacter::StopAiming()
@@ -249,6 +266,13 @@ void ATPCharacter::StopAiming()
 	bIsAiming = false;
 	CameraHandler->SetAimCameraMode(false);
 	SetTPCMotionMatchingType(ETPCMotionMatchingType::With_OrientRotationToMovement);
+	if (GetHasWeaponInHand() && InventoryComponent)
+	{
+		if (InventoryComponent->GetCurrentlyEquippedWeaponType() == EWeaponType::Rifle)
+		{
+			InventoryComponent->ChangeWeaponSocket("WeaponEquippedSocketRifle");
+		}
+	}
 }
 
 bool ATPCharacter::GetHasWeaponInHand()

@@ -4,6 +4,7 @@
 #include "../Enums/TPCPlayerEnums.h"
 #include "CameraHandlerComponent.generated.h"
 
+class UCameraComponent;
 class USpringArmComponent;
 
 USTRUCT(BlueprintType)
@@ -28,7 +29,7 @@ public:
 	UCameraHandlerComponent();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	void InitializeCamera(USpringArmComponent* InSpringArm);
+	void InitializeCamera(USpringArmComponent* InSpringArm, UCameraComponent* InCamera);
 	
 	void ToggleCameraType();
 	void SetCrouchedCameraMode(bool bNewCrouched);
@@ -38,6 +39,9 @@ public:
 private:
 	UPROPERTY()
 	USpringArmComponent* SpringArmRef = nullptr;
+
+	UPROPERTY()
+	UCameraComponent* CameraRef = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category="Camera_Presets")
 	FTPCCameraSettings AimCamera = {50, {0,40,50}};

@@ -23,6 +23,7 @@ public:
 	const TArray<AWeapon*>& GetWeaponsInventory() const { return WeaponsInventory; }
 	bool HasWeaponEquipped() const;
 	EWeaponType GetCurrentlyEquippedWeaponType();
+	void ChangeWeaponSocket(FName NewWeaponSocketName);
 	
 protected:
 	virtual void BeginPlay() override;
