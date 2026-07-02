@@ -24,6 +24,8 @@ public:
 	bool HasWeaponEquipped() const;
 	EWeaponType GetCurrentlyEquippedWeaponType();
 	void ChangeWeaponSocket(FName NewWeaponSocketName);
+	void AttackWithCurrentWeapon(const FVector& AimHitLocation);
+	void ReloadCurrentlyEquippedWeapon();
 	
 protected:
 	virtual void BeginPlay() override;

@@ -9,6 +9,7 @@
 #include "../Interaction/InteractionComponent.h"
 #include "../Enums/TPCPlayerEnums.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 ATPCharacter::ATPCharacter()
 {
@@ -72,6 +73,8 @@ void ATPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		EIC->BindAction(IA_Holster, ETriggerEvent::Started, this, &ATPCharacter::HolsterWeapon);
 		EIC->BindAction(IA_Aim, ETriggerEvent::Started, this, &ATPCharacter::StartAiming);
 		EIC->BindAction(IA_Aim, ETriggerEvent::Completed, this, &ATPCharacter::StopAiming);
+		EIC->BindAction(IA_Attack, ETriggerEvent::Started, this, &ATPCharacter::DoAttack);
+		EIC->BindAction(IA_Reload, ETriggerEvent::Started, this, &ATPCharacter::DoReload);
 	}
 }
 
@@ -258,6 +261,10 @@ void ATPCharacter::StartAiming()
 		{
 			InventoryComponent->ChangeWeaponSocket("WeaponAimSocketRifle");
 		}
+		if (InventoryComponent->GetCurrentlyEquippedWeaponType() == EWeaponType::Pistol)
+		{
+			InventoryComponent->ChangeWeaponSocket("WeaponAimSocketPistol");
+		}
 	}
 }
 
@@ -271,6 +278,11 @@ void ATPCharacter::StopAiming()
 		if (InventoryComponent->GetCurrentlyEquippedWeaponType() == EWeaponType::Rifle)
 		{
 			InventoryComponent->ChangeWeaponSocket("WeaponEquippedSocketRifle");
+		}
+
+		if (InventoryComponent->GetCurrentlyEquippedWeaponType() == EWeaponType::Pistol)
+		{
+			InventoryComponent->ChangeWeaponSocket("WeaponEquippedSocketPistol");
 		}
 	}
 }
@@ -293,4 +305,51 @@ EWeaponType ATPCharacter::GetCurrentlyEquippedWeaponTypeFromInv()
 	}
 
 	return EWeaponType::None;
+}
+
+void ATPCharacter::DoAttack()
+{
+	if (InventoryComponent && GetIsAiming())
+	{
+		InventoryComponent->AttackWithCurrentWeapon(GetAimHitLocation());
+	}
+}
+
+void ATPCharacter::DoReload()
+{
+	if (InventoryComponent && GetHasWeaponInHand())
+	{
+		InventoryComponent->ReloadCurrentlyEquippedWeapon();
+	}
+}
+
+const FVector ATPCharacter::GetAimHitLocation()
+{
+	if (!PlayerCamera)
+		return {0,0,0};
+	
+	FVector LineTraceStart = PlayerCamera->GetComponentLocation();  
+	FVector LineTraceEnd = PlayerCamera->GetComponentLocation() + PlayerCamera->GetForwardVector() * 50000;  
+
+	FHitResult HitResult;
+	const TArray<AActor*> HitActors;
+	
+	UKismetSystemLibrary::LineTraceSingle(
+		GetWorld(),
+		LineTraceStart,
+		LineTraceEnd,
+		TraceTypeQuery1,
+		true,
+		HitActors,
+		EDrawDebugTrace::None,
+		HitResult,
+		true
+		);
+
+	if (HitResult.bBlockingHit)
+	{
+		return HitResult.ImpactPoint;
+	}
+
+	return LineTraceEnd;
 }

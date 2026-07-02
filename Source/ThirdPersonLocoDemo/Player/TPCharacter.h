@@ -88,6 +88,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	class UInputAction* IA_Holster;
 
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	class UInputAction* IA_Reload;
+
 
 	// Attachments____________________________________________________________
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
@@ -167,4 +170,7 @@ private:
 	void StopAiming();
 	bool GetIsAiming();
 	EWeaponType GetCurrentlyEquippedWeaponTypeFromInv();
+	void DoAttack();
+	void DoReload();
+	const FVector GetAimHitLocation();
 };

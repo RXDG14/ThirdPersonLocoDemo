@@ -240,3 +240,19 @@ void UInventoryComponent::ChangeWeaponSocket(FName NewWeaponSocketName)
 		CurrentlyEquippedWeapon->AttachToComponent(Player->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,NewWeaponSocketName);
 	}
 }
+
+void UInventoryComponent::AttackWithCurrentWeapon(const FVector& AimHitLocation)
+{
+	if (CurrentlyEquippedWeapon)
+	{
+		CurrentlyEquippedWeapon->Fire(AimHitLocation);
+	}
+}
+
+void UInventoryComponent::ReloadCurrentlyEquippedWeapon()
+{
+	if (CurrentlyEquippedWeapon)
+	{
+		CurrentlyEquippedWeapon->ReloadWeapon();
+	}
+}

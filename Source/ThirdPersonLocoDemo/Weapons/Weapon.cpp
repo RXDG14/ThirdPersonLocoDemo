@@ -11,6 +11,9 @@ AWeapon::AWeapon()
 
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);
+
+	WeaponMuzzle = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponMuzzle"));
+	WeaponMuzzle->SetupAttachment(WeaponMesh);
 	
 	InteractableComponent = CreateDefaultSubobject<UInteractableComponent>(TEXT("InteractableComponent"));
 }
@@ -88,4 +91,14 @@ void AWeapon::SetWeaponState(ETPCWeaponState NewWeaponState)
 ETPCWeaponState AWeapon::GetWeaponState()
 {
 	return CurrentWeaponState;
+}
+
+void AWeapon::ReloadWeapon()
+{
+	
+}
+
+void AWeapon::Fire(const FVector& AimHitLocation)
+{
+	
 }
