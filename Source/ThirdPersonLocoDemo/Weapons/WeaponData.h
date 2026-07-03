@@ -5,6 +5,7 @@
 #include "ThirdPersonLocoDemo/Enums/TPCWeaponEnums.h"
 #include "WeaponData.generated.h"
 
+class UImage;
 class AWeapon;
 
 UCLASS(BlueprintType)
@@ -18,6 +19,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
 	EWeaponType WeaponType = EWeaponType::None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
+	EWeaponCategory WeaponCategory = EWeaponCategory::None;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
 	FText WeaponName;
@@ -33,4 +37,7 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
 	TSubclassOf<AWeapon> WeaponClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
+	TObjectPtr<UTexture2D> WeaponImage;
 };

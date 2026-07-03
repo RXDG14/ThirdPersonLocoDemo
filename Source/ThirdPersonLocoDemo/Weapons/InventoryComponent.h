@@ -4,6 +4,8 @@
 #include "Components/ActorComponent.h"
 #include "InventoryComponent.generated.h"
 
+enum class EWeaponCategory : uint8;
+class UWidgetWeaponHUD;
 enum class EWeaponType : uint8;
 class AWeapon;
 
@@ -26,6 +28,7 @@ public:
 	void ChangeWeaponSocket(FName NewWeaponSocketName);
 	void AttackWithCurrentWeapon(const FVector& AimHitLocation);
 	void ReloadCurrentlyEquippedWeapon();
+	void SetWeaponWidgetHUDRef(UWidgetWeaponHUD* WeaponHUDRef);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -40,6 +43,11 @@ private:
 	UPROPERTY()
 	AWeapon* CurrentlyEquippedWeapon = nullptr;
 
+	UPROPERTY()
+	TObjectPtr<UWidgetWeaponHUD> WidgetWeaponHUD;
+
+	void UpdateWeaponStats(int32 CurrentAmmo, int32 AmmoClipSize, int32 TotalRemainingSpareAmmo);
+	void UpdateWeaponImage();
 	void AddWeaponToInventory(AWeapon* NewWeapon, bool bShouldHolster);
 	void RemoveWeaponFromInventory(AWeapon* Weapon);
 	void AddWeaponToInventoryAsAmmo(AWeapon* NewWeapon);
@@ -47,4 +55,6 @@ private:
 	void UnEquipWeapon(AWeapon* Weapon, bool bShouldHolster);
 	void HolsterWeapon(AWeapon* Weapon);
 	void SetPlayerAnimationState(EWeaponType WeaponType);
+	void UpdateWeaponUI(bool bVisibility);
+	EWeaponCategory GetCurrentlyEquippedWeaponCategory();
 };

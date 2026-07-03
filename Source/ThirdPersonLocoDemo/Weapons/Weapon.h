@@ -26,6 +26,12 @@ public:
 
 	virtual void ReloadWeapon();
 	virtual void Fire(const FVector& AimHitLocation);
+
+	DECLARE_DELEGATE_ThreeParams(FOnWeaponStatsUpdated, int32, int32, int32);
+	FOnWeaponStatsUpdated OnWeaponStatsUpdated;
+
+	
+	
 protected:
 	virtual void BeginPlay() override;
 

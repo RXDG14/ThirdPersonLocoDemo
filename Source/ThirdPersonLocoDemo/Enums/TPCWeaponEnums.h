@@ -1,6 +1,15 @@
 ﻿#pragma once
 
 UENUM(BlueprintType)
+enum class EWeaponCategory : uint8
+{
+	None           UMETA(DisplayName = "None"),
+	Melee           UMETA(DisplayName = "Melee"),
+	Ranged          UMETA(DisplayName = "Ranged"),
+	Throwable       UMETA(DisplayName = "Throwable")
+};
+
+UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
 	None        UMETA(DisplayName = "None"),

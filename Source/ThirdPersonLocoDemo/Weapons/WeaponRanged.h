@@ -12,7 +12,9 @@ class THIRDPERSONLOCODEMO_API AWeaponRanged : public AWeapon
 public:
 	virtual void Fire(const FVector& AimHitLocation) override;
 	virtual void ReloadWeapon() override;
-
+	int32 GetCurrentAmmo();
+	int32 GetSpareAmmo();
+	int32 GetAmmoClipSize();
 protected:
 	virtual void BeginPlay() override;
 	

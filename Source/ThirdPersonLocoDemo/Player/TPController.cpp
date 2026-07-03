@@ -5,6 +5,7 @@
 #include "InputMappingContext.h"
 #include "../Widgets/WidgetWeaponWheel.h"
 #include "Kismet/GameplayStatics.h"
+#include "ThirdPersonLocoDemo/WidgetWeaponHUD.h"
 #include "ThirdPersonLocoDemo/Weapons/InventoryComponent.h"
 
 void ATPController::BeginPlay()
@@ -43,25 +44,41 @@ void ATPController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 
 	CreateWeaponWheelWidget();
+	CreateWeaponHUDWidget();
 }
 
 void ATPController::CreateWeaponWheelWidget()
 {
 	if (!WidgetWeaponWheelClass)
-	{
 		return;
-	}
 
 	WidgetWeaponWheel = CreateWidget<UWidgetWeaponWheel>(this, WidgetWeaponWheelClass);
 
 	if (WidgetWeaponWheel)
 	{
-		WidgetWeaponWheel->AddToViewport();
+		WidgetWeaponWheel->AddToViewport(1);
 		WidgetWeaponWheel->SetVisibility(ESlateVisibility::Hidden);
 
 		if (UInventoryComponent* InventoryComp = GetPawn()->FindComponentByClass<UInventoryComponent>())
 		{
 			WidgetWeaponWheel->SetInventoryComponent(InventoryComp);
+		}
+	}
+}
+
+void ATPController::CreateWeaponHUDWidget()
+{
+	if (!WidgetWeaponHUDClass)
+		return;
+
+	WidgetWeaponHUD = CreateWidget<UWidgetWeaponHUD>(this,WidgetWeaponHUDClass);
+	if (WidgetWeaponHUD)
+	{
+		WidgetWeaponHUD->AddToViewport(0);
+		WidgetWeaponHUD->SetWeaponHUDVisiblity(false);
+		if (UInventoryComponent* InventoryComp = GetPawn()->FindComponentByClass<UInventoryComponent>())
+		{
+			InventoryComp->SetWeaponWidgetHUDRef(WidgetWeaponHUD);
 		}
 	}
 }

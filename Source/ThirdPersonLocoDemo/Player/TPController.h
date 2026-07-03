@@ -4,6 +4,7 @@
 #include "GameFramework/PlayerController.h"
 #include "TPController.generated.h"
 
+class UWidgetWeaponHUD;
 class UInputMappingContext;
 class UInputAction;
 class UWidgetWeaponWheel;
@@ -33,11 +34,18 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="UI")
 	TSubclassOf<UWidgetWeaponWheel> WidgetWeaponWheelClass;
 
+	UPROPERTY(EditDefaultsOnly, Category="UI")
+	TSubclassOf<UWidgetWeaponHUD> WidgetWeaponHUDClass;
+	
 	UPROPERTY()
 	UWidgetWeaponWheel* WidgetWeaponWheel;
 
+	UPROPERTY()
+	UWidgetWeaponHUD* WidgetWeaponHUD;
+
 private:
 	void CreateWeaponWheelWidget();
+	void CreateWeaponHUDWidget();
 	void ShowWeaponWheel();
 	void HideWeaponWheel();
 };

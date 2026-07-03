@@ -1,6 +1,8 @@
 #include "InventoryComponent.h"
 #include "Weapon.h"
 #include "WeaponData.h"
+#include "WeaponRanged.h"
+#include "ThirdPersonLocoDemo/WidgetWeaponHUD.h"
 #include "ThirdPersonLocoDemo/Enums/TPCPlayerEnums.h"
 #include "ThirdPersonLocoDemo/Enums/TPCWeaponEnums.h"
 #include "ThirdPersonLocoDemo/Player/TPCharacter.h"
@@ -30,6 +32,7 @@ void UInventoryComponent::PickupWeapon(AWeapon* Weapon)
 		// Equip weapon
 		EquipWeapon(Weapon);
 	}
+	UpdateWeaponUI(true);
 }
 
 void UInventoryComponent::DropCurrentlyEquippedWeapon()
@@ -38,6 +41,7 @@ void UInventoryComponent::DropCurrentlyEquippedWeapon()
 		return;
 
 	UnEquipWeapon(CurrentlyEquippedWeapon, false);
+	UpdateWeaponUI(false);
 }
 
 void UInventoryComponent::HolsterCurrentlyEquippedWeapon()
@@ -111,6 +115,8 @@ void UInventoryComponent::AddWeaponToInventory(AWeapon* NewWeapon, bool bShouldH
 	{
 		HolsterWeapon(NewWeapon);
 	}
+
+	NewWeapon->OnWeaponStatsUpdated.BindUObject(this,&UInventoryComponent::UpdateWeaponStats);
 	UE_LOG(LogTemp, Warning, TEXT("Added weapon to inventory"));
 }
 
@@ -140,6 +146,7 @@ void UInventoryComponent::EquipWeapon(AWeapon* Weapon)
 		SetPlayerAnimationState(Weapon->GetWeaponData()->WeaponType);
 	}
 	CurrentlyEquippedWeapon = Weapon;
+	UpdateWeaponUI(true);
 }
 
 void UInventoryComponent::UnEquipWeapon(AWeapon* Weapon, bool bShouldHolster)
@@ -161,6 +168,7 @@ void UInventoryComponent::UnEquipWeapon(AWeapon* Weapon, bool bShouldHolster)
 		CurrentlyEquippedWeapon = nullptr;
 		SetPlayerAnimationState(EWeaponType::None);
 	}
+	UpdateWeaponUI(false);
 }
 
 void UInventoryComponent::HolsterWeapon(AWeapon* Weapon)
@@ -183,6 +191,7 @@ void UInventoryComponent::HolsterWeapon(AWeapon* Weapon)
 	{
 		Weapon->AttachToComponent(Player->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,Weapon->GetWeaponData()->WeaponHolsterSocketName);
 	}
+	UpdateWeaponUI(false);
 }
 
 void UInventoryComponent::SetPlayerAnimationState(EWeaponType WeaponType)
@@ -205,6 +214,35 @@ void UInventoryComponent::SetPlayerAnimationState(EWeaponType WeaponType)
 	default:
 		break;
 	}
+}
+
+void UInventoryComponent::UpdateWeaponUI(bool bVisibility)
+{
+	if (HasWeaponEquipped() && CurrentlyEquippedWeapon)
+	{
+		if (GetCurrentlyEquippedWeaponCategory() == EWeaponCategory::Ranged)
+		{
+			auto* Weapon = Cast<AWeaponRanged>(CurrentlyEquippedWeapon);
+			UpdateWeaponStats(Weapon->GetCurrentAmmo(),Weapon->GetAmmoClipSize(),Weapon->GetSpareAmmo());
+			
+		}
+	}
+
+	WidgetWeaponHUD->SetWeaponHUDVisiblity(bVisibility);
+}
+
+EWeaponCategory UInventoryComponent::GetCurrentlyEquippedWeaponCategory()
+{
+	if (HasWeaponEquipped() && CurrentlyEquippedWeapon)
+	{
+		auto* CurrentlyEquippedWeaponData = CurrentlyEquippedWeapon->GetWeaponData();
+		if (!CurrentlyEquippedWeaponData)
+			return EWeaponCategory::None;
+
+		return CurrentlyEquippedWeaponData->WeaponCategory;
+	}
+
+	return EWeaponCategory::None;
 }
 
 bool UInventoryComponent::HasWeaponEquipped() const
@@ -254,5 +292,32 @@ void UInventoryComponent::ReloadCurrentlyEquippedWeapon()
 	if (CurrentlyEquippedWeapon)
 	{
 		CurrentlyEquippedWeapon->ReloadWeapon();
+	}
+}
+
+void UInventoryComponent::SetWeaponWidgetHUDRef(UWidgetWeaponHUD* WeaponHUDRef)
+{
+	WidgetWeaponHUD = WeaponHUDRef;
+}
+
+void UInventoryComponent::UpdateWeaponStats(int32 CurrentAmmo, int32 AmmoClipSize, int32 TotalRemainingSpareAmmo)
+{
+	if (WidgetWeaponHUD)
+	{
+		WidgetWeaponHUD->SetCurrentAmmoInClip(CurrentAmmo);
+		WidgetWeaponHUD->SetAmmoClipSize(AmmoClipSize);
+		WidgetWeaponHUD->SetTotalRemainingSpareAmmo(TotalRemainingSpareAmmo);
+	}
+	UpdateWeaponImage();
+}
+
+void UInventoryComponent::UpdateWeaponImage()
+{
+	if (WidgetWeaponHUD && CurrentlyEquippedWeapon)
+	{
+		if (CurrentlyEquippedWeapon->GetWeaponData())
+		{
+			WidgetWeaponHUD->SetWeaponImage(CurrentlyEquippedWeapon->GetWeaponData()->WeaponImage);
+		}
 	}
 }

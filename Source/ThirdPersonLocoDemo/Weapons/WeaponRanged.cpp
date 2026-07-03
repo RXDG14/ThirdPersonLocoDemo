@@ -55,6 +55,8 @@ void AWeaponRanged::UpdateWeaponStats() // one bullet has been shot so we now up
 		ReloadWeapon();
 	}
 
+	OnWeaponStatsUpdated.ExecuteIfBound(CurrentAmmoInClip, AmmoClipSize, TotalRemainingSpareAmmo);
+	
 	UE_LOG(LogTemp,Warning,TEXT("CurrentAmmo: %d"),CurrentAmmoInClip);
 	UE_LOG(LogTemp,Warning,TEXT("TotalRemainingSpareAmmo: %d"),TotalRemainingSpareAmmo);
 }
@@ -66,23 +68,41 @@ void AWeaponRanged::ReloadWeapon()
 	
 	if (TotalRemainingSpareAmmo > 0)
 	{
-		if (TotalRemainingSpareAmmo >= AmmoClipSize)
-		{
-			int32 AmmoToAdd = AmmoClipSize - CurrentAmmoInClip;
-			CurrentAmmoInClip += AmmoToAdd;
-			TotalRemainingSpareAmmo -= AmmoToAdd;
-		}
-		else
-		{
-			CurrentAmmoInClip = AmmoClipSize - TotalRemainingSpareAmmo;
-			TotalRemainingSpareAmmo = 0;
-		}
+		int32 AmmoToAdd = AmmoClipSize - CurrentAmmoInClip;
+		CurrentAmmoInClip += AmmoToAdd;
+		TotalRemainingSpareAmmo -= AmmoToAdd;
 	}
 	else
 	{
-		SetCanFireWeapon(false);
-		SetCanReloadWeapon(false);
+		if (TotalRemainingSpareAmmo < 1 && CurrentAmmoInClip < 1)
+		{
+			SetCanFireWeapon(false);
+			SetCanReloadWeapon(false);
+		}
 	}
+
+	if (TotalRemainingSpareAmmo > 1 && CurrentAmmoInClip > 1)
+	{
+		SetCanFireWeapon(true);
+		SetCanReloadWeapon(true);
+	}
+	
+	OnWeaponStatsUpdated.ExecuteIfBound(CurrentAmmoInClip, AmmoClipSize, TotalRemainingSpareAmmo);
+}
+
+int32 AWeaponRanged::GetCurrentAmmo()
+{
+	return CurrentAmmoInClip;
+}
+
+int32 AWeaponRanged::GetSpareAmmo()
+{
+	return TotalRemainingSpareAmmo;
+}
+
+int32 AWeaponRanged::GetAmmoClipSize()
+{
+	return AmmoClipSize;
 }
 
 bool AWeaponRanged::GetCanFireWeapon()
@@ -104,5 +124,3 @@ void AWeaponRanged::SetCanReloadWeapon(bool value)
 {
 	bCanReloadWeapon = value;
 }
-
-
