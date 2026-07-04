@@ -18,5 +18,6 @@ Third-Person Locomotion system made in UE5. It has:
 <img width="1917" height="1077" alt="3" src="https://github.com/user-attachments/assets/99b2697b-694f-409f-a2b6-9778281e5afd" />
 
 Gameplay demo (video): https://www.youtube.com/watch?v=92jK7n3CFhY
+
 Gameplay demo (Itch): https://bonker34.itch.io/third-person-locomotion-with-motion-matching-and-weapon-system
 
