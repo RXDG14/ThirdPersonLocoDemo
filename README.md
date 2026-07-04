@@ -35,6 +35,7 @@ A third-person locomotion system built in **Unreal Engine 5**, featuring motion 
 ### Four Switchable Camera Modes
 
 <img src="https://github.com/user-attachments/assets/99b2697b-694f-409f-a2b6-9778281e5afd" alt="Camera Modes">
+<img width="1917" height="1077" alt="5" src="https://github.com/user-attachments/assets/160981bc-139a-4c3b-8fe2-50a4e6858f86" />
 
 ## Gameplay
 
