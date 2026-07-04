@@ -5,17 +5,32 @@
 Third-Person Locomotion system made in UE5. It has:
 - Motion Matching
 
-- Inventory system (Basic)
+
+
+
 <img width="1917" height="1077" alt="2" src="https://github.com/user-attachments/assets/e90e39d2-62d3-41bb-a51c-f6d0e80765fe" />
+- Inventory system (Basic)
 
-- Weapons (Pistol and Rifle)
+
+
+
 <img width="1917" height="1077" alt="4" src="https://github.com/user-attachments/assets/3bbdfb8a-d87f-4ee7-8028-f69ec7cb3dc7" />
+- Weapons (Pistol and Rifle)
 
-- Interaction System
+
+
+
 <img width="1917" height="1077" alt="1" src="https://github.com/user-attachments/assets/ea111353-9b9e-4423-8733-b8e247397bb9" />
+- Interaction System
 
-- 4 Different switchable camera modes
+
+
+
 <img width="1917" height="1077" alt="3" src="https://github.com/user-attachments/assets/99b2697b-694f-409f-a2b6-9778281e5afd" />
+- 4 Different switchable camera modes
+
+
+
 
 Gameplay demo (video): https://www.youtube.com/watch?v=92jK7n3CFhY
 
