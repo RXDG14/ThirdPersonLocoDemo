@@ -98,7 +98,13 @@ void AWeapon::ReloadWeapon()
 	// implemented in child
 }
 
-void AWeapon::Fire(const FVector& AimHitLocation)
+void AWeapon::StartFire(const FVector& AimHitLocation)
 {
 	// implemented in child
 }
+
+// void AWeapon::StopFire()
+// {
+// 	// implemented in child
+// }
+

@@ -12,38 +12,6 @@ void AWeaponRanged::InitializeWeapon()
 {
 	CurrentAmmoInClip = AmmoClipSize;
 	TotalRemainingSpareAmmo = MaxAmmoCapacity;
-	SetCanFireWeapon(true);
-	SetCanReloadWeapon(true);
-}
-
-void AWeaponRanged::Fire(const FVector& AimHitLocation)
-{
-	if (!GetWorld() || !BulletClass)
-		return;
-
-	if (!GetCanFireWeapon())
-	{
-		// play empty clip sound
-		return;
-	}
-	
-	FVector MuzzleLocation = WeaponMuzzle->GetComponentLocation();
-	FRotator BulletRotation = (AimHitLocation - MuzzleLocation).Rotation();
-
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.Owner = this;
-
-	ABullet* SpawnedBullet = GetWorld()->SpawnActor<ABullet>(
-		BulletClass,
-		MuzzleLocation,
-		BulletRotation,
-		SpawnParameters);
-
-	if (SpawnedBullet)
-	{
-		SpawnedBullet->SetBulletDirection(BulletRotation);
-		UpdateWeaponStats();
-	}
 }
 
 void AWeaponRanged::UpdateWeaponStats() // one bullet has been shot so we now update
@@ -52,13 +20,44 @@ void AWeaponRanged::UpdateWeaponStats() // one bullet has been shot so we now up
 	
 	if (CurrentAmmoInClip <= 0)
 	{
-		ReloadWeapon();
+		TellPlayerToReload.ExecuteIfBound();
+		//ReloadWeapon();
 	}
 
 	OnWeaponStatsUpdated.ExecuteIfBound(CurrentAmmoInClip, AmmoClipSize, TotalRemainingSpareAmmo);
 	
 	UE_LOG(LogTemp,Warning,TEXT("CurrentAmmo: %d"),CurrentAmmoInClip);
 	UE_LOG(LogTemp,Warning,TEXT("TotalRemainingSpareAmmo: %d"),TotalRemainingSpareAmmo);
+}
+
+void AWeaponRanged::StartFire(const FVector& AimHitLocation)
+{
+	if (!GetWorld() || !BulletClass)
+		return;
+	
+	if (!GetCanFireWeapon())
+	{
+		// play empty clip sound
+		return;
+	}
+	
+	FVector MuzzleLocation = WeaponMuzzle->GetComponentLocation();
+	FRotator BulletRotation = (AimHitLocation - MuzzleLocation).Rotation();
+	
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Owner = this;
+	
+	ABullet* SpawnedBullet = GetWorld()->SpawnActor<ABullet>(
+		BulletClass,
+		MuzzleLocation,
+		BulletRotation,
+		SpawnParameters);
+	
+	if (SpawnedBullet)
+	{
+		SpawnedBullet->SetBulletDirection(BulletRotation);
+		UpdateWeaponStats();
+	}
 }
 
 void AWeaponRanged::ReloadWeapon()
@@ -68,23 +67,11 @@ void AWeaponRanged::ReloadWeapon()
 	
 	if (TotalRemainingSpareAmmo > 0)
 	{
-		int32 AmmoToAdd = AmmoClipSize - CurrentAmmoInClip;
+		const int32 AmmoNeeded = AmmoClipSize - CurrentAmmoInClip;
+		const int32 AmmoToAdd = FMath::Min(AmmoNeeded, TotalRemainingSpareAmmo);
+
 		CurrentAmmoInClip += AmmoToAdd;
 		TotalRemainingSpareAmmo -= AmmoToAdd;
-	}
-	else
-	{
-		if (TotalRemainingSpareAmmo < 1 && CurrentAmmoInClip < 1)
-		{
-			SetCanFireWeapon(false);
-			SetCanReloadWeapon(false);
-		}
-	}
-
-	if (TotalRemainingSpareAmmo > 1 && CurrentAmmoInClip > 1)
-	{
-		SetCanFireWeapon(true);
-		SetCanReloadWeapon(true);
 	}
 	
 	OnWeaponStatsUpdated.ExecuteIfBound(CurrentAmmoInClip, AmmoClipSize, TotalRemainingSpareAmmo);
@@ -107,20 +94,24 @@ int32 AWeaponRanged::GetAmmoClipSize()
 
 bool AWeaponRanged::GetCanFireWeapon()
 {
-	return bCanFireWeapon;
+	if (CurrentAmmoInClip > 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;	
+	}
 }
 
 bool AWeaponRanged::GetCanReloadWeapon()
 {
-	return bCanReloadWeapon;
-}
-
-void AWeaponRanged::SetCanFireWeapon(bool value)
-{
-	bCanFireWeapon = value;
-}
-
-void AWeaponRanged::SetCanReloadWeapon(bool value)
-{
-	bCanReloadWeapon = value;
+	if (TotalRemainingSpareAmmo > 0 && CurrentAmmoInClip < AmmoClipSize)
+	{
+		return true;
+	}
+	else
+	{
+		return false;	
+	}
 }

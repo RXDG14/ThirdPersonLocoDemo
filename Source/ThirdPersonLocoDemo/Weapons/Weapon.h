@@ -25,12 +25,14 @@ public:
 	ETPCWeaponState GetWeaponState();
 
 	virtual void ReloadWeapon();
-	virtual void Fire(const FVector& AimHitLocation);
+	virtual void StartFire(const FVector& AimHitLocation);
+	//virtual void StopFire();
 
 	DECLARE_DELEGATE_ThreeParams(FOnWeaponStatsUpdated, int32, int32, int32);
 	FOnWeaponStatsUpdated OnWeaponStatsUpdated;
 
-	
+	DECLARE_DELEGATE(FTellPlayerToReload);
+	FTellPlayerToReload TellPlayerToReload;
 	
 protected:
 	virtual void BeginPlay() override;

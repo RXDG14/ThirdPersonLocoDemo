@@ -32,7 +32,7 @@ void UInventoryComponent::PickupWeapon(AWeapon* Weapon)
 		// Equip weapon
 		EquipWeapon(Weapon);
 	}
-	UpdateWeaponUI(true);
+	//UpdateWeaponUI(true);
 }
 
 void UInventoryComponent::DropCurrentlyEquippedWeapon()
@@ -86,38 +86,32 @@ void UInventoryComponent::EquipWeaponFromInventory(AWeapon* Weapon)
 	}
 }
 
-void UInventoryComponent::AddWeaponToInventory(AWeapon* NewWeapon, bool bShouldHolster)
+bool UInventoryComponent::AddWeaponToInventory(AWeapon* NewWeapon, bool bShouldHolster)
 {
 	if (!IsValid(NewWeapon) || !IsValid(NewWeapon->GetWeaponData()))
-		return;
-
-	UWeaponData* NewWeaponData = NewWeapon->GetWeaponData();
-
-	for (AWeapon* InventoryWeapon : WeaponsInventory) //  check if weapon already exists in inv
 	{
-		if (!IsValid(InventoryWeapon) || !IsValid(InventoryWeapon->GetWeaponData()))
-			continue;
+		return false;
+	}
 
-		if (InventoryWeapon == NewWeapon)
-			continue;
-
-		UWeaponData* InventoryWeaponData = InventoryWeapon->GetWeaponData();
-
-		if (InventoryWeaponData->WeaponID == NewWeaponData->WeaponID)
-		{
-			AddWeaponToInventoryAsAmmo(NewWeapon); // add as ammo if already exists
-			return;
-		}
+	if (IsWeaponAlreadyInInventory(NewWeapon))
+	{
+		AddWeaponToInventoryAsAmmo(NewWeapon);
+		return false;
 	}
 
 	WeaponsInventory.AddUnique(NewWeapon);
+
 	if (bShouldHolster)
 	{
 		HolsterWeapon(NewWeapon);
 	}
 
-	NewWeapon->OnWeaponStatsUpdated.BindUObject(this,&UInventoryComponent::UpdateWeaponStats);
+	NewWeapon->OnWeaponStatsUpdated.BindUObject(this, &UInventoryComponent::UpdateWeaponStats);
+	NewWeapon->TellPlayerToReload.BindUObject(this, &UInventoryComponent::SignalPlayerToReload);
+
 	UE_LOG(LogTemp, Warning, TEXT("Added weapon to inventory"));
+
+	return true;
 }
 
 void UInventoryComponent::RemoveWeaponFromInventory(AWeapon* Weapon)
@@ -135,16 +129,29 @@ void UInventoryComponent::EquipWeapon(AWeapon* Weapon)
 {
 	ATPCharacter* Player = Cast<ATPCharacter>(GetOwner());
 	if (!IsValid(Player) || !Player->GetMesh())
+	{
 		return;
+	}
 
-	AddWeaponToInventory(Weapon, false);
+	// Weapon wasn't added (likely converted to ammo).
+	if (!AddWeaponToInventory(Weapon, false))
+	{
+		return;
+	}
+
 	Weapon->SetOwner(Player);
 	Weapon->SetWeaponState(ETPCWeaponState::Equipped);
+
 	if (Weapon->GetWeaponData())
 	{
-		Weapon->AttachToComponent(Player->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,Weapon->GetWeaponData()->WeaponEquippedSocketName);
+		Weapon->AttachToComponent(
+			Player->GetMesh(),
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+			Weapon->GetWeaponData()->WeaponEquippedSocketName);
+
 		SetPlayerAnimationState(Weapon->GetWeaponData()->WeaponType);
 	}
+
 	CurrentlyEquippedWeapon = Weapon;
 	UpdateWeaponUI(true);
 }
@@ -176,22 +183,29 @@ void UInventoryComponent::HolsterWeapon(AWeapon* Weapon)
 	ATPCharacter* Player = Cast<ATPCharacter>(GetOwner());
 	if (!IsValid(Player) || !Player->GetMesh())
 		return;
-	
-	if (HasWeaponEquipped())
+
+	const bool bWasEquipped = (CurrentlyEquippedWeapon == Weapon);
+
+	if (bWasEquipped)
 	{
-		if (CurrentlyEquippedWeapon == Weapon)
-		{
-			CurrentlyEquippedWeapon = nullptr;
-		}
+		CurrentlyEquippedWeapon = nullptr;
 	}
-	
+
 	Weapon->SetOwner(Player);
 	Weapon->SetWeaponState(ETPCWeaponState::Holstered);
+
 	if (Weapon->GetWeaponData())
 	{
-		Weapon->AttachToComponent(Player->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,Weapon->GetWeaponData()->WeaponHolsterSocketName);
+		Weapon->AttachToComponent(
+			Player->GetMesh(),
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+			Weapon->GetWeaponData()->WeaponHolsterSocketName);
 	}
-	UpdateWeaponUI(false);
+
+	if (bWasEquipped)
+	{
+		UpdateWeaponUI(false);
+	}
 }
 
 void UInventoryComponent::SetPlayerAnimationState(EWeaponType WeaponType)
@@ -245,6 +259,46 @@ EWeaponCategory UInventoryComponent::GetCurrentlyEquippedWeaponCategory()
 	return EWeaponCategory::None;
 }
 
+bool UInventoryComponent::IsWeaponAlreadyInInventory(AWeapon* NewWeapon) const
+{
+	if (!IsValid(NewWeapon) || !IsValid(NewWeapon->GetWeaponData()))
+	{
+		return false;
+	}
+
+	UWeaponData* NewWeaponData = NewWeapon->GetWeaponData();
+
+	for (AWeapon* InventoryWeapon : WeaponsInventory)
+	{
+		if (!IsValid(InventoryWeapon) || !IsValid(InventoryWeapon->GetWeaponData()))
+		{
+			continue;
+		}
+
+		if (InventoryWeapon == NewWeapon)
+		{
+			continue;
+		}
+
+		if (InventoryWeapon->GetWeaponData()->WeaponID == NewWeaponData->WeaponID)
+		{
+			//AddWeaponToInventoryAsAmmo(NewWeapon);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void UInventoryComponent::SignalPlayerToReload()
+{
+	ATPCharacter* Player = Cast<ATPCharacter>(GetOwner());
+	if (!IsValid(Player) || !Player->GetMesh())
+		return;
+
+	Player->SignalToReload();
+}
+
 bool UInventoryComponent::HasWeaponEquipped() const
 {
 	return CurrentlyEquippedWeapon != nullptr;
@@ -279,13 +333,21 @@ void UInventoryComponent::ChangeWeaponSocket(FName NewWeaponSocketName)
 	}
 }
 
-void UInventoryComponent::AttackWithCurrentWeapon(const FVector& AimHitLocation)
+void UInventoryComponent::StartAttackWithCurrentWeapon(const FVector& AimHitLocation)
 {
 	if (CurrentlyEquippedWeapon)
 	{
-		CurrentlyEquippedWeapon->Fire(AimHitLocation);
+		CurrentlyEquippedWeapon->StartFire(AimHitLocation);
 	}
 }
+
+// void UInventoryComponent::StopAttackWithCurrentWeapon()
+// {
+// 	if (CurrentlyEquippedWeapon)
+// 	{
+// 		CurrentlyEquippedWeapon->StopFire();
+// 	}
+// }
 
 void UInventoryComponent::ReloadCurrentlyEquippedWeapon()
 {
@@ -298,6 +360,16 @@ void UInventoryComponent::ReloadCurrentlyEquippedWeapon()
 void UInventoryComponent::SetWeaponWidgetHUDRef(UWidgetWeaponHUD* WeaponHUDRef)
 {
 	WidgetWeaponHUD = WeaponHUDRef;
+}
+
+bool UInventoryComponent::GetCanReloadCurrentWeapon()
+{
+	if (CurrentlyEquippedWeapon)
+	{
+		auto* Weapon = Cast<AWeaponRanged>(CurrentlyEquippedWeapon);
+		return Weapon->GetCanReloadWeapon();
+	}
+	return false;
 }
 
 void UInventoryComponent::UpdateWeaponStats(int32 CurrentAmmo, int32 AmmoClipSize, int32 TotalRemainingSpareAmmo)

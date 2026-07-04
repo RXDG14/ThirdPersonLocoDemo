@@ -22,6 +22,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
 	EWeaponCategory WeaponCategory = EWeaponCategory::None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
+	float WeaponFireRate = 0.2f;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="General")
 	FText WeaponName;

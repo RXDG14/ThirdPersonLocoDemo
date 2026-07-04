@@ -10,11 +10,15 @@ class THIRDPERSONLOCODEMO_API AWeaponRanged : public AWeapon
 	GENERATED_BODY()
 
 public:
-	virtual void Fire(const FVector& AimHitLocation) override;
+	virtual void StartFire(const FVector& AimHitLocation) override;
+	//virtual void StopFire() override;
 	virtual void ReloadWeapon() override;
 	int32 GetCurrentAmmo();
 	int32 GetSpareAmmo();
 	int32 GetAmmoClipSize();
+	bool GetCanFireWeapon();
+	bool GetCanReloadWeapon();
+	
 protected:
 	virtual void BeginPlay() override;
 	
@@ -31,15 +35,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attributes_Weapons", meta = (AllowPrivateAccess = "true"))
 	int32 MaxAmmoCapacity = 180;
 
-	bool bCanFireWeapon = true;
-	bool bCanReloadWeapon = true;
-
+	FTimerHandle FireTimerHandle;
+	FVector CachedAimHitLocation;
+	
+	//void Fire(const FVector& AimHitLocation);
 	void InitializeWeapon();
 	void UpdateWeaponStats();
-	
-	bool GetCanFireWeapon();
-	void SetCanFireWeapon(bool value);
-	bool GetCanReloadWeapon();
-	void SetCanReloadWeapon(bool value);
-	
 };

@@ -30,7 +30,13 @@ struct FTPCMovementSettings
 	float LookSpeed = 0.3f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float LookSpeedAiming = 0.15f; // slower is better for mouse look
+	float LookSpeedAiming = 0.2f; // slower is better for mouse look
+
+	UPROPERTY(EditDefaultsOnly)
+	float RotationSpeedNormal = 150.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float RotationSpeedAiming = 250.f; 
 };
 
 UCLASS()
@@ -43,7 +49,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void SetTPCAnimationState(ETPCAnimationState NewAnimationState);
-	
+	void SignalToReload();
 protected:
 	virtual void BeginPlay() override;
 	
@@ -123,12 +129,24 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Animations", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* AM_Holster;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Animations", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* AM_Rifle_Fire;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Animations", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* AM_Rifle_Reload;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Attributes_Animations", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* AM_Pistol_Reload;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Attributes_Movement", meta = (AllowPrivateAccess = "true"))
 	ETPCAnimationState PlayerCurrentAnimationState;
 	
 	UFUNCTION(BlueprintCallable, meta = (AllowPrivateAccess = "true"))
 	void Notify_OnWeaponHolstered();
+
+	UFUNCTION(BlueprintCallable, meta = (AllowPrivateAccess = "true"))
+	void Notify_OnReloadFinished();
 	
 	// Weapons____________________________________________________________
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Attributes_Weapon", meta = (AllowPrivateAccess = "true"))
@@ -171,6 +189,7 @@ private:
 	bool GetIsAiming();
 	EWeaponType GetCurrentlyEquippedWeaponTypeFromInv();
 	void DoAttack();
+	//void StopAttack();
 	void DoReload();
 	const FVector GetAimHitLocation();
 };

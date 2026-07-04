@@ -26,10 +26,11 @@ public:
 	bool HasWeaponEquipped() const;
 	EWeaponType GetCurrentlyEquippedWeaponType();
 	void ChangeWeaponSocket(FName NewWeaponSocketName);
-	void AttackWithCurrentWeapon(const FVector& AimHitLocation);
+	void StartAttackWithCurrentWeapon(const FVector& AimHitLocation);
+	//void StopAttackWithCurrentWeapon();
 	void ReloadCurrentlyEquippedWeapon();
 	void SetWeaponWidgetHUDRef(UWidgetWeaponHUD* WeaponHUDRef);
-	
+	bool GetCanReloadCurrentWeapon();
 protected:
 	virtual void BeginPlay() override;
 
@@ -48,7 +49,7 @@ private:
 
 	void UpdateWeaponStats(int32 CurrentAmmo, int32 AmmoClipSize, int32 TotalRemainingSpareAmmo);
 	void UpdateWeaponImage();
-	void AddWeaponToInventory(AWeapon* NewWeapon, bool bShouldHolster);
+	bool AddWeaponToInventory(AWeapon* NewWeapon, bool bShouldHolster);
 	void RemoveWeaponFromInventory(AWeapon* Weapon);
 	void AddWeaponToInventoryAsAmmo(AWeapon* NewWeapon);
 	void EquipWeapon(AWeapon* Weapon);
@@ -57,4 +58,6 @@ private:
 	void SetPlayerAnimationState(EWeaponType WeaponType);
 	void UpdateWeaponUI(bool bVisibility);
 	EWeaponCategory GetCurrentlyEquippedWeaponCategory();
+	bool IsWeaponAlreadyInInventory(AWeapon* NewWeapon) const;
+	void SignalPlayerToReload();
 };

@@ -74,6 +74,7 @@ void ATPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		EIC->BindAction(IA_Aim, ETriggerEvent::Started, this, &ATPCharacter::StartAiming);
 		EIC->BindAction(IA_Aim, ETriggerEvent::Completed, this, &ATPCharacter::StopAiming);
 		EIC->BindAction(IA_Attack, ETriggerEvent::Started, this, &ATPCharacter::DoAttack);
+		//EIC->BindAction(IA_Attack, ETriggerEvent::Completed, this, &ATPCharacter::StopAttack);
 		EIC->BindAction(IA_Reload, ETriggerEvent::Started, this, &ATPCharacter::DoReload);
 	}
 }
@@ -83,6 +84,14 @@ void ATPCharacter::Notify_OnWeaponHolstered()
 	if (InventoryComponent)
 	{
 		InventoryComponent->HolsterCurrentlyEquippedWeapon();
+	}
+}
+
+void ATPCharacter::Notify_OnReloadFinished()
+{
+	if (InventoryComponent && GetHasWeaponInHand())
+	{
+		InventoryComponent->ReloadCurrentlyEquippedWeapon();
 	}
 }
 
@@ -220,6 +229,11 @@ void ATPCharacter::SetTPCAnimationState(ETPCAnimationState NewAnimationState)
 	PlayerCurrentAnimationState = NewAnimationState;
 }
 
+void ATPCharacter::SignalToReload()
+{
+	DoReload();
+}
+
 void ATPCharacter::SetTPCMotionMatchingType(ETPCMotionMatchingType NewMotionMatchingType)
 {
 	if (NewMotionMatchingType == ETPCMotionMatchingType::With_ControllerDesiredRotation)
@@ -266,6 +280,10 @@ void ATPCharacter::StartAiming()
 			InventoryComponent->ChangeWeaponSocket("WeaponAimSocketPistol");
 		}
 	}
+	if (GetMovementComponent())
+	{
+		GetCharacterMovement()->RotationRate.Yaw = MovementSettings.RotationSpeedAiming;
+	}
 }
 
 void ATPCharacter::StopAiming()
@@ -284,6 +302,10 @@ void ATPCharacter::StopAiming()
 		{
 			InventoryComponent->ChangeWeaponSocket("WeaponEquippedSocketPistol");
 		}
+	}
+	if (GetMovementComponent())
+	{
+		GetCharacterMovement()->RotationRate.Yaw = MovementSettings.RotationSpeedNormal;
 	}
 }
 
@@ -309,17 +331,51 @@ EWeaponType ATPCharacter::GetCurrentlyEquippedWeaponTypeFromInv()
 
 void ATPCharacter::DoAttack()
 {
-	if (InventoryComponent && GetIsAiming())
+	if (InventoryComponent && GetIsAiming() && GetHasWeaponInHand())
 	{
-		InventoryComponent->AttackWithCurrentWeapon(GetAimHitLocation());
+		if (InventoryComponent->GetCurrentlyEquippedWeaponType() == EWeaponType::Rifle)
+		{
+			if (AM_Rifle_Fire)
+			{
+				PlayAnimationMontage(AM_Rifle_Fire);
+			}	
+		}
+		InventoryComponent->StartAttackWithCurrentWeapon(GetAimHitLocation());
 	}
 }
 
+// void ATPCharacter::StopAttack()
+// {
+// 	if (InventoryComponent)
+// 	{
+// 		InventoryComponent->StopAttackWithCurrentWeapon();
+// 	}
+// }
+
 void ATPCharacter::DoReload()
 {
-	if (InventoryComponent && GetHasWeaponInHand())
+	if (InventoryComponent && InventoryComponent->GetCanReloadCurrentWeapon())
 	{
-		InventoryComponent->ReloadCurrentlyEquippedWeapon();
+		if (GetIsAiming() && GetHasWeaponInHand())
+		{
+			StopAiming();
+		}
+
+		if (InventoryComponent->GetCurrentlyEquippedWeaponType() == EWeaponType::Rifle)
+		{
+			if (AM_Rifle_Reload)
+			{
+				PlayAnimationMontage(AM_Rifle_Reload);
+			}	
+		}
+		if (InventoryComponent->GetCurrentlyEquippedWeaponType() == EWeaponType::Pistol)
+		{
+			if (AM_Pistol_Reload)
+			{
+				PlayAnimationMontage(AM_Pistol_Reload);
+			}	
+		}
+		
 	}
 }
 

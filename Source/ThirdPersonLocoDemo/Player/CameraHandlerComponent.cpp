@@ -23,7 +23,7 @@ void UCameraHandlerComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 void UCameraHandlerComponent::SetCameraType(ETPCCameraType NewCameraType)
 {
-	PreviousCameraType = CurrentCameraType;
+	//PreviousCameraType = CurrentCameraType;
 	
 	switch (NewCameraType)
 	{
@@ -93,15 +93,17 @@ void UCameraHandlerComponent::SetCrouchedCameraMode(bool bNewCrouched)
 
 void UCameraHandlerComponent::SetAimCameraMode(bool bNewAim)
 {
-	bIsInAimCameraMode = bNewAim;
 	if (bNewAim)
 	{
+		PreviousCameraType = CurrentCameraType;
 		SetCameraType(ETPCCameraType::Aim);
 	}
 	else
 	{
 		SetCameraType(PreviousCameraType);
 	}
+
+	bIsInAimCameraMode = bNewAim;
 }
 
 void UCameraHandlerComponent::UpdateCameraPosition(float DeltaTime)
